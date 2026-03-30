@@ -1,0 +1,49 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Horarios — {{ business.name }}{% endblock %}
+{% block breadcrumb %}Horarios de atención{% endblock %}
+
+{% block dash_content %}
+<div class="dash-section">
+  <div class="dash-section__header">
+    <h2>Horarios de atención</h2>
+  </div>
+  <form method="POST" action="{{ url_for('dashboard.hours') }}">
+    <div class="hours-grid">
+      {% set days = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'] %}
+      {% for day_num in range(7) %}
+        {% set wh = wh_dict.get(day_num) %}
+        <div class="hours-row">
+          <div class="hours-row__day">{{ days[day_num] }}</div>
+          <label class="toggle-label">
+            <input type="checkbox" name="closed_{{ day_num }}"
+                   id="closed_{{ day_num }}"
+                   {% if wh and wh.is_closed %}checked{% endif %}
+                   onchange="toggleDay({{ day_num }}, this.checked)">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">Cerrado</span>
+          </label>
+          <div class="hours-row__times" id="times_{{ day_num }}"
+               {% if wh and wh.is_closed %}style="opacity:0.3;pointer-events:none"{% endif %}>
+            <input type="time" name="open_{{ day_num }}"
+                   value="{{ wh.open_time.strftime('%H:%M') if wh and wh.open_time else '09:00' }}">
+            <span>—</span>
+            <input type="time" name="close_{{ day_num }}"
+                   value="{{ wh.close_time.strftime('%H:%M') if wh and wh.close_time else '18:00' }}">
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn--accent">Guardar horarios</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function toggleDay(day, isClosed) {
+  const times = document.getElementById(`times_${day}`);
+  times.style.opacity = isClosed ? '0.3' : '1';
+  times.style.pointerEvents = isClosed ? 'none' : 'auto';
+}
+</script>
+{% endblock %}

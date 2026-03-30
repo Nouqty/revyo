@@ -1,0 +1,149 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Servicios — {{ business.name }}<script>
+function pickEmoji(em) {
+  document.getElementById('svc-emoji-val').value = em;
+  document.getElementById('emoji-display').textContent = em;
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('emoji-dropdown').classList.remove('open');
+}
+function toggleEmojiPicker() {
+  document.getElementById('emoji-dropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.emoji-picker-wrap')) {
+    document.querySelectorAll('.emoji-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+</script>
+{% endblock %}
+{% block breadcrumb %}Servicios{% endblock %}
+
+{% block dash_content %}
+<div class="dash-section">
+  <div class="dash-section__header">
+    <h2>Servicios</h2>
+    <button onclick="document.getElementById('add-service-modal').style.display='flex'"
+            class="btn btn--accent btn--sm">+ Agregar servicio</button>
+  </div>
+
+  {% if services %}
+  <div class="services-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Emoji</th>
+          <th>Nombre</th>
+          <th>Duración</th>
+          <th>Precio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for svc in services %}
+        <tr class="{% if not svc.is_active %}row--inactive{% endif %}">
+          <td style="font-size:1.4rem;text-align:center;">{{ svc.emoji or '⚡' }}</td>
+          <td>
+            <div class="svc-name">{{ svc.name }}</div>
+            {% if svc.description %}
+            <div class="svc-desc">{{ svc.description }}</div>
+            {% endif %}
+          </td>
+          <td>{{ svc.duration_min }} min</td>
+          <td>{{ svc.price|price_display }}</td>
+          <td>
+            <span class="status-badge status-badge--{% if svc.is_active %}confirmed{% else %}cancelled{% endif %}">
+              {% if svc.is_active %}Activo{% else %}Inactivo{% endif %}
+            </span>
+          </td>
+          <td>
+            <div class="table-actions">
+              <form method="POST" style="display:inline">
+                <input type="hidden" name="action" value="toggle">
+                <input type="hidden" name="service_id" value="{{ svc.id }}">
+                <button type="submit" class="btn btn--ghost btn--xs">
+                  {% if svc.is_active %}Desactivar{% else %}Activar{% endif %}
+                </button>
+              </form>
+              <form method="POST" style="display:inline"
+                    onsubmit="return confirm('¿Eliminar este servicio?')">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="service_id" value="{{ svc.id }}">
+                <button type="submit" class="btn btn--danger btn--xs">Eliminar</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state__icon">⚡</div>
+    <p>Aún no tienes servicios</p>
+    <p class="empty-state__sub">Agrega los servicios que ofreces para que los clientes puedan elegir al reservar</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal agregar servicio -->
+<div class="modal-overlay" id="add-service-modal" style="display:none"
+     onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="modal__header">
+      <h3>Nuevo servicio</h3>
+      <button onclick="document.getElementById('add-service-modal').style.display='none'"
+              class="modal__close">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('dashboard.services') }}">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Emoji del servicio</label>
+        <div class="emoji-picker-wrap">
+          <input type="hidden" name="emoji" id="svc-emoji-val" value="⚡">
+          <button type="button" class="emoji-trigger" onclick="toggleEmojiPicker()">
+            <span class="current-emoji" id="emoji-display">⚡</span>
+            <span class="trigger-label">Cambiar emoji ▾</span>
+          </button>
+          <div class="emoji-dropdown" id="emoji-dropdown">
+            <div class="emoji-grid">
+              {% for em in ["✂","💇","💈","🪒","💪","🏋️","🧘","💆","💅","🧴","💊","🦷","🐾","🌿","⚡","🔥","✨","💎","🎯","🌟","🎽","🏃","🚴","🥊","🎭","🎵","🌺","🍃","🧖","🧼","💆‍♂️","🪴"] %}
+              <button type="button" class="emoji-btn" onclick="pickEmoji('{{ em }}')">{{ em }}</button>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nombre del servicio *</label>
+        <input type="text" name="name" placeholder="ej. Corte de cabello" required>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <input type="text" name="description" placeholder="Descripción breve (opcional)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Duración (minutos)</label>
+          <select name="duration_min">
+            {% for m in [15, 20, 30, 45, 60, 90, 120] %}
+            <option value="{{ m }}" {% if m == 30 %}selected{% endif %}>{{ m }} min</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio</label>
+          <input type="number" name="price" value="0" min="0" placeholder="0 = Gratis">
+        </div>
+      </div>
+      <div class="modal__actions">
+        <button type="button" onclick="document.getElementById('add-service-modal').style.display='none'"
+                class="btn btn--ghost">Cancelar</button>
+        <button type="submit" class="btn btn--accent">Agregar servicio</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

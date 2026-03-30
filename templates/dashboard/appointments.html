@@ -1,0 +1,87 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Reservas — {{ business.name }}{% endblock %}
+{% block breadcrumb %}Reservas{% endblock %}
+
+{% block dash_content %}
+<div class="dash-section">
+  <div class="dash-section__header">
+    <h2>Todas las reservas</h2>
+  </div>
+
+  <!-- Filtros -->
+  <form class="filter-bar" method="GET">
+    <select name="status" onchange="this.form.submit()">
+      <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos los estados</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pendientes</option>
+      <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmadas</option>
+      <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completadas</option>
+      <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Canceladas</option>
+    </select>
+    <input type="date" name="date" value="{{ date_filter }}" onchange="this.form.submit()">
+    {% if date_filter or status_filter != 'all' %}
+    <a href="{{ url_for('dashboard.appointments') }}" class="btn btn--ghost btn--sm">Limpiar filtros</a>
+    {% endif %}
+  </form>
+
+  {% if appointments %}
+  <div class="appointments-list">
+    {% for appt in appointments %}
+    <div class="appt-row appt-row--{{ appt.status }}">
+      <div class="appt-row__date">
+        <div class="appt-row__day">{{ appt.date|format_date }}</div>
+        <div class="appt-row__time">{{ appt.time|format_time }}</div>
+      </div>
+      <div class="appt-row__info">
+        <div class="appt-row__name">{{ appt.customer_name }}</div>
+        <div class="appt-row__service">
+          {% if appt.service %}{{ appt.service.name }}{% else %}Cita general{% endif %}
+          {% if appt.customer_phone %} · 📱 {{ appt.customer_phone }}{% endif %}
+          {% if appt.customer_email %} · ✉ {{ appt.customer_email }}{% endif %}
+        </div>
+        {% if appt.notes %}
+        <div class="appt-row__notes">💬 {{ appt.notes }}</div>
+        {% endif %}
+      </div>
+      <div class="appt-row__status">
+        <span class="status-badge status-badge--{{ appt.status }}">
+          {{ appt.status_label[0] }}
+        </span>
+      </div>
+      <div class="appt-row__actions">
+        {% if appt.status == 'pending' %}
+        <button onclick="updateStatus({{ appt.id }}, 'confirmed', this)" class="btn btn--success btn--xs">Confirmar</button>
+        <button onclick="updateStatus({{ appt.id }}, 'cancelled', this)" class="btn btn--danger btn--xs">Cancelar</button>
+        {% elif appt.status == 'confirmed' %}
+        <button onclick="updateStatus({{ appt.id }}, 'completed', this)" class="btn btn--outline btn--xs">Completar</button>
+        <button onclick="updateStatus({{ appt.id }}, 'cancelled', this)" class="btn btn--danger btn--xs">Cancelar</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state__icon">📭</div>
+    <p>No hay reservas que mostrar</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+async function updateStatus(id, status, btn) {
+  const row = btn.closest('.appt-row');
+  const res = await fetch(`/dashboard/appointments/${id}/status`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status})
+  });
+  if (res.ok) {
+    row.className = `appt-row appt-row--${status}`;
+    const labels = {confirmed:'Confirmada',completed:'Completada',cancelled:'Cancelada'};
+    row.querySelector('.status-badge').textContent = labels[status] || status;
+    row.querySelector('.status-badge').className = `status-badge status-badge--${status}`;
+    row.querySelector('.appt-row__actions').innerHTML = '';
+  }
+}
+</script>
+{% endblock %}

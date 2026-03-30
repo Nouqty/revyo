@@ -1,0 +1,150 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Panel — {{ business.name }}{% endblock %}
+{% block breadcrumb %}Panel principal{% endblock %}
+
+{% block dash_content %}
+
+<!-- Suscripción trial banner -->
+{% if current_user.subscription and current_user.subscription.status == 'trial' %}
+<div class="trial-banner">
+  <span>⚡ Período de prueba activo</span>
+  <span>Suscríbete para no perder el acceso</span>
+  <a href="{{ url_for('payment.plans') }}" class="btn btn--accent btn--sm">Ver planes</a>
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card__icon">📅</div>
+    <div class="stat-card__num">{{ today_appointments|length }}</div>
+    <div class="stat-card__label">Citas hoy</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__icon">⏳</div>
+    <div class="stat-card__num">{{ pending_count }}</div>
+    <div class="stat-card__label">Pendientes</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__icon">📊</div>
+    <div class="stat-card__num">{{ this_week }}</div>
+    <div class="stat-card__label">Últimos 7 días</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__icon">🔗</div>
+    <div class="stat-card__label">Tu link de reservas</div>
+    <div class="stat-card__link">
+      <code>revyo.cl/b/{{ business.slug }}</code>
+      <button onclick="navigator.clipboard.writeText('{{ request.host_url }}b/{{ business.slug }}');this.textContent='✓'" class="btn btn--ghost btn--xs">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Próximas citas -->
+<div class="dash-section">
+  <div class="dash-section__header">
+    <h2>Próximas reservas</h2>
+    <a href="{{ url_for('dashboard.appointments') }}" class="btn btn--ghost btn--sm">Ver todas →</a>
+  </div>
+
+  {% if upcoming %}
+  <div class="appointments-list">
+    {% for appt in upcoming %}
+    <div class="appt-row appt-row--{{ appt.status }}">
+      <div class="appt-row__date">
+        <div class="appt-row__day">{{ appt.date|format_date }}</div>
+        <div class="appt-row__time">{{ appt.time|format_time }}</div>
+      </div>
+      <div class="appt-row__info">
+        <div class="appt-row__name">{{ appt.customer_name }}</div>
+        <div class="appt-row__service">
+          {% if appt.service %}{{ appt.service.name }}{% else %}Cita general{% endif %}
+          {% if appt.customer_phone %} · {{ appt.customer_phone }}{% endif %}
+        </div>
+      </div>
+      <div class="appt-row__status">
+        <span class="status-badge status-badge--{{ appt.status }}">
+          {{ appt.status_label[0] }}
+        </span>
+      </div>
+      <div class="appt-row__actions">
+        {% if appt.status == 'pending' %}
+        <button onclick="updateStatus({{ appt.id }}, 'confirmed', this)"
+                class="btn btn--success btn--xs">Confirmar</button>
+        <button onclick="updateStatus({{ appt.id }}, 'cancelled', this)"
+                class="btn btn--danger btn--xs">Cancelar</button>
+        {% elif appt.status == 'confirmed' %}
+        <button onclick="updateStatus({{ appt.id }}, 'completed', this)"
+                class="btn btn--outline btn--xs">Completar</button>
+        <button onclick="updateStatus({{ appt.id }}, 'cancelled', this)"
+                class="btn btn--danger btn--xs">Cancelar</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state__icon">📭</div>
+    <p>No hay reservas próximas</p>
+    <p class="empty-state__sub">Comparte tu link para que los clientes puedan reservar</p>
+    <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank"
+       class="btn btn--outline btn--sm">Ver mi página →</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Quick actions -->
+<div class="quick-actions">
+  <a href="{{ url_for('dashboard.customize') }}" class="quick-action">
+    <span>🎨</span>
+    <div>
+      <strong>Personalizar página</strong>
+      <small>Colores, logo y diseño</small>
+    </div>
+  </a>
+  <a href="{{ url_for('dashboard.services') }}" class="quick-action">
+    <span>⚡</span>
+    <div>
+      <strong>Gestionar servicios</strong>
+      <small>Agrega o edita servicios</small>
+    </div>
+  </a>
+  <a href="{{ url_for('dashboard.hours') }}" class="quick-action">
+    <span>🕐</span>
+    <div>
+      <strong>Horarios de atención</strong>
+      <small>Configura cuándo atiendes</small>
+    </div>
+  </a>
+  <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank" class="quick-action">
+    <span>🔗</span>
+    <div>
+      <strong>Ver mi página</strong>
+      <small>Como la ve el cliente</small>
+    </div>
+  </a>
+</div>
+
+<script>
+async function updateStatus(id, status, btn) {
+  const row = btn.closest('.appt-row');
+  const res = await fetch(`/dashboard/appointments/${id}/status`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status})
+  });
+  if (res.ok) {
+    row.className = `appt-row appt-row--${status}`;
+    row.querySelector('.appt-row__actions').innerHTML =
+      status === 'confirmed'
+        ? `<button onclick="updateStatus(${id},'completed',this)" class="btn btn--outline btn--xs">Completar</button>
+           <button onclick="updateStatus(${id},'cancelled',this)" class="btn btn--danger btn--xs">Cancelar</button>`
+        : '';
+    row.querySelector('.status-badge').textContent =
+      {confirmed:'Confirmada',completed:'Completada',cancelled:'Cancelada'}[status];
+    row.querySelector('.status-badge').className = `status-badge status-badge--${status}`;
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,377 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Personalizar — {{ business.name }}{% endblock %}
+{% block breadcrumb %}Personalizar página{% endblock %}
+
+{% block extra_head %}
+<style>
+  .preview-frame { transition: all 0.3s ease; }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<div class="customize-layout">
+
+  <!-- Formulario -->
+  <div class="customize-form-col">
+    <form method="POST" action="{{ url_for('dashboard.customize') }}" enctype="multipart/form-data">
+
+      <!-- Identidad -->
+      <div class="form-section">
+        <h3 class="form-section__title">📋 Información del negocio</h3>
+        <div class="form-group">
+          <label>Nombre del negocio</label>
+          <input type="text" name="name" value="{{ business.name }}" required>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea name="description" rows="3" placeholder="Describe brevemente tu negocio...">{{ business.description or '' }}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Categoría</label>
+            <select name="category">
+              <option value="barberia" {% if business.category == 'barberia' %}selected{% endif %}>✂ Barbería</option>
+              <option value="gym" {% if business.category == 'gym' %}selected{% endif %}>💪 Gimnasio</option>
+              <option value="spa" {% if business.category == 'spa' %}selected{% endif %}>💆 Spa</option>
+              <option value="salon" {% if business.category == 'salon' %}selected{% endif %}>💅 Salón</option>
+              <option value="dental" {% if business.category == 'dental' %}selected{% endif %}>🦷 Dental</option>
+              <option value="otro" {% if business.category == 'otro' %}selected{% endif %}>📍 Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" name="phone" value="{{ business.phone or '' }}" placeholder="+56 9 1234 5678">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp</label>
+            <input type="text" name="whatsapp" value="{{ business.whatsapp or '' }}" placeholder="+56912345678">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Dirección</label>
+          <input type="text" name="address" value="{{ business.address or '' }}" placeholder="Av. Principal 123, Santiago">
+        </div>
+        <div class="form-group">
+          <label>Instagram</label>
+          <input type="text" name="instagram" value="{{ business.instagram or '' }}" placeholder="@tunegocio">
+        </div>
+      </div>
+
+      <!-- Diseño visual -->
+      <div class="form-section">
+        <h3 class="form-section__title">🎨 Diseño y colores</h3>
+
+        <div class="form-group">
+          <label>Logo del negocio</label>
+          <div class="logo-upload" id="logo-upload-zone">
+            {% if business.logo_url %}
+              <img src="{{ business.logo_url }}" alt="logo actual" class="logo-preview" id="logo-preview">
+            {% else %}
+              <div class="logo-placeholder" id="logo-placeholder">
+                <span>+</span>
+                <p>Haz clic o arrastra tu logo</p>
+                <small>PNG, JPG o SVG · Max 5MB</small>
+              </div>
+              <img class="logo-preview" id="logo-preview" style="display:none">
+            {% endif %}
+            <input type="file" name="logo" id="logo-input" accept=".png,.jpg,.jpeg,.svg,.webp"
+                   style="display:none" onchange="previewLogo(this)">
+          </div>
+          <button type="button" onclick="document.getElementById('logo-input').click()"
+                  class="btn btn--outline btn--sm" style="margin-top:8px">
+            Subir logo
+          </button>
+        </div>
+
+        <div class="color-grid">
+          <div class="form-group">
+            <label>Color principal</label>
+            <div class="color-input-wrap">
+              <input type="color" name="primary_color" value="{{ business.primary_color }}"
+                     oninput="updatePreview()">
+              <input type="text" id="primary_color_hex" value="{{ business.primary_color }}"
+                     oninput="syncColor(this, 'primary_color')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color secundario</label>
+            <div class="color-input-wrap">
+              <input type="color" name="secondary_color" value="{{ business.secondary_color }}"
+                     oninput="updatePreview()">
+              <input type="text" id="secondary_color_hex" value="{{ business.secondary_color }}"
+                     oninput="syncColor(this, 'secondary_color')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color de acento</label>
+            <div class="color-input-wrap">
+              <input type="color" name="accent_color" value="{{ business.accent_color }}"
+                     oninput="updatePreview()">
+              <input type="text" id="accent_color_hex" value="{{ business.accent_color }}"
+                     oninput="syncColor(this, 'accent_color')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color de texto</label>
+            <div class="color-input-wrap">
+              <input type="color" name="text_color" value="{{ business.text_color }}"
+                     oninput="updatePreview()">
+              <input type="text" id="text_color_hex" value="{{ business.text_color }}"
+                     oninput="syncColor(this, 'text_color')">
+            </div>
+          </div>
+        </div>
+
+        <!-- Paletas predefinidas -->
+        <div class="form-group">
+          <label>Paletas rápidas</label>
+          <div class="preset-palettes">
+            <button type="button" class="palette-btn" data-palette='["#1a1a2e","#16213e","#e94560","#ffffff"]' title="Noche Oscura">
+              <span style="background:#1a1a2e"></span><span style="background:#16213e"></span>
+              <span style="background:#e94560"></span>
+            </button>
+            <button type="button" class="palette-btn" data-palette='["#0d1117","#161b22","#f0c419","#ffffff"]' title="Dorado Negro">
+              <span style="background:#0d1117"></span><span style="background:#161b22"></span>
+              <span style="background:#f0c419"></span>
+            </button>
+            <button type="button" class="palette-btn" data-palette='["#f8f9fa","#ffffff","#6366f1","#1a1a2e"]' title="Minimalista">
+              <span style="background:#f8f9fa"></span><span style="background:#6366f1"></span>
+              <span style="background:#1a1a2e"></span>
+            </button>
+            <button type="button" class="palette-btn" data-palette='["#1b4332","#2d6a4f","#52b788","#ffffff"]' title="Natural Verde">
+              <span style="background:#1b4332"></span><span style="background:#2d6a4f"></span>
+              <span style="background:#52b788"></span>
+            </button>
+            <button type="button" class="palette-btn" data-palette='["#2d1b69","#11998e","#38ef7d","#ffffff"]' title="Aurora">
+              <span style="background:#2d1b69"></span><span style="background:#11998e"></span>
+              <span style="background:#38ef7d"></span>
+            </button>
+            <button type="button" class="palette-btn" data-palette='["#1a0000","#3d0000","#ff4444","#ffffff"]' title="Rojo Intenso">
+              <span style="background:#1a0000"></span><span style="background:#3d0000"></span>
+              <span style="background:#ff4444"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Fuente</label>
+          <select name="font_choice" id="font-select" onchange="updatePreview()">
+            {% for font in google_fonts %}
+            <option value="{{ font }}" {% if business.font_choice == font %}selected{% endif %}>
+              {{ font }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Colores modo oscuro -->
+        <div class="form-group" style="margin-top:.5rem">
+          <label>Colores en modo oscuro (para tus clientes)</label>
+          <div class="color-grid" style="margin-top:.5rem">
+            <div class="form-group">
+              <label>Fondo oscuro</label>
+              <div class="color-input-wrap">
+                <input type="color" name="dark_bg_color" value="{{ business.dark_bg_color or '#0f0f1a' }}">
+                <input type="text" value="{{ business.dark_bg_color or '#0f0f1a' }}" readonly style="opacity:.6">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Cards oscuras</label>
+              <div class="color-input-wrap">
+                <input type="color" name="dark_card_color" value="{{ business.dark_card_color or '#1a1a2e' }}">
+                <input type="text" value="{{ business.dark_card_color or '#1a1a2e' }}" readonly style="opacity:.6">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estilo de la página -->
+      <div class="form-section">
+        <h3 class="form-section__title">✨ Estilo de la página del cliente</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Estilo del encabezado</label>
+            <div class="style-options">
+              {% for val, label, icon in [('gradient','Degradado','🌈'), ('solid','Sólido','⬛'), ('minimal','Minimalista','〰️'), ('image','Con imagen','🖼️')] %}
+              <label class="style-option">
+                <input type="radio" name="header_style" value="{{ val }}" {% if (business.header_style or 'gradient') == val %}checked{% endif %}>
+                <span>{{ icon }} {{ label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Estilo de botones</label>
+            <div class="style-options">
+              {% for val, label, icon in [('rounded','Redondeado','▢'), ('pill','Píldora','💊'), ('square','Cuadrado','⬜')] %}
+              <label class="style-option">
+                <input type="radio" name="button_style" value="{{ val }}" {% if (business.button_style or 'rounded') == val %}checked{% endif %}>
+                <span>{{ icon }} {{ label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Estilo de tarjetas</label>
+          <div class="style-options">
+            {% for val, label, icon in [('elevated','Con sombra','🪄'), ('flat','Plano','⬜'), ('bordered','Con borde','▣'), ('glass','Cristal','🫧')] %}
+            <label class="style-option">
+              <input type="radio" name="card_style" value="{{ val }}" {% if (business.card_style or 'elevated') == val %}checked{% endif %}>
+              <span>{{ icon }} {{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label" style="font-size:.9rem;color:#374151;gap:.6rem;cursor:pointer">
+            <input type="checkbox" name="allow_dark_mode" {% if business.allow_dark_mode != False %}checked{% endif %}
+                   style="width:16px;height:16px;accent-color:var(--dash-accent)">
+            🌙 Mostrar botón de modo oscuro/claro a los clientes
+          </label>
+          <small>Los clientes podrán cambiar entre modo claro y oscuro en su página de reservas</small>
+        </div>
+      </div>
+
+      <!-- Configuración de reservas -->
+      <div class="form-section">
+        <h3 class="form-section__title">⚙️ Configuración de reservas</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Anticipación mínima (horas)</label>
+            <input type="number" name="booking_lead_hours" value="{{ business.booking_lead_hours }}" min="0" max="72">
+            <small>Cuántas horas antes puede reservar un cliente</small>
+          </div>
+          <div class="form-group">
+            <label>Días máximos por adelantado</label>
+            <input type="number" name="max_advance_days" value="{{ business.max_advance_days }}" min="1" max="90">
+          </div>
+          <div class="form-group">
+            <label>Duración del slot (minutos)</label>
+            <select name="slot_duration_min">
+              {% for mins in [15, 20, 30, 45, 60, 90, 120] %}
+              <option value="{{ mins }}" {% if business.slot_duration_min == mins %}selected{% endif %}>
+                {{ mins }} min
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--accent btn--lg">Guardar cambios</button>
+        <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank"
+           class="btn btn--ghost btn--lg">Ver página →</a>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Preview -->
+  <div class="customize-preview-col">
+    <div class="preview-wrapper">
+      <div class="preview-label">Vista previa en tiempo real</div>
+      <div class="preview-browser">
+        <div class="preview-browser__bar">
+          <div class="preview-dots"><span></span><span></span><span></span></div>
+          <span class="preview-browser__url">revyo.cl/b/{{ business.slug }}</span>
+        </div>
+        <div class="preview-frame" id="preview-frame">
+          <div class="preview-header" id="pv-header">
+            <div class="preview-biz-name" id="pv-name">{{ business.name }}</div>
+            <div class="preview-biz-desc" id="pv-desc">{{ business.description or 'Tu descripción aquí' }}</div>
+          </div>
+          <div class="preview-body">
+            <div class="preview-section-title" id="pv-svc-title">Nuestros servicios</div>
+            <div class="preview-service" id="pv-svc">Corte de cabello · 30min · $8.000</div>
+            <div class="preview-service">Barba · 20min · $5.000</div>
+            <div class="preview-section-title">Elige un horario</div>
+            <div class="preview-slots">
+              <span class="preview-slot">10:00</span>
+              <span class="preview-slot preview-slot--accent" id="pv-slot">10:30</span>
+              <span class="preview-slot">11:00</span>
+              <span class="preview-slot">11:30</span>
+            </div>
+            <button class="preview-cta" id="pv-btn">Reservar ahora</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function updatePreview() {
+  const primary   = document.querySelector('input[name="primary_color"]').value;
+  const secondary = document.querySelector('input[name="secondary_color"]').value;
+  const accent    = document.querySelector('input[name="accent_color"]').value;
+  const text      = document.querySelector('input[name="text_color"]').value;
+  const name      = document.querySelector('input[name="name"]').value;
+  const desc      = document.querySelector('textarea[name="description"]').value;
+  const font      = document.getElementById('font-select').value;
+
+  document.getElementById('pv-header').style.background = `linear-gradient(135deg, ${primary}, ${secondary})`;
+  document.getElementById('pv-header').style.color = text;
+  document.getElementById('pv-name').textContent = name || 'Nombre de tu negocio';
+  document.getElementById('pv-desc').textContent = desc || 'Tu descripción aquí';
+  document.getElementById('pv-slot').style.background = accent;
+  document.getElementById('pv-btn').style.background = accent;
+  document.getElementById('preview-frame').style.fontFamily = `'${font}', sans-serif`;
+
+  // Hex inputs sync
+  document.getElementById('primary_color_hex').value = primary;
+  document.getElementById('secondary_color_hex').value = secondary;
+  document.getElementById('accent_color_hex').value = accent;
+  document.getElementById('text_color_hex').value = text;
+}
+
+function syncColor(hexInput, colorName) {
+  const val = hexInput.value;
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    document.querySelector(`input[name="${colorName}"]`).value = val;
+    updatePreview();
+  }
+}
+
+// Paletas rápidas
+document.querySelectorAll('.palette-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const [p, s, a, t] = JSON.parse(btn.dataset.palette);
+    document.querySelector('input[name="primary_color"]').value = p;
+    document.querySelector('input[name="secondary_color"]').value = s;
+    document.querySelector('input[name="accent_color"]').value = a;
+    document.querySelector('input[name="text_color"]').value = t;
+    updatePreview();
+  });
+});
+
+function previewLogo(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('logo-preview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      const ph = document.getElementById('logo-placeholder');
+      if (ph) ph.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Sincroniza inputs de color al escribir en el text input
+document.querySelectorAll('input[type="color"]').forEach(el => {
+  el.addEventListener('input', updatePreview);
+});
+
+updatePreview();
+</script>
+{% endblock %}

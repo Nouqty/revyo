@@ -1,0 +1,145 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Email de confirmación — {{ business.name }}{% endblock %}
+{% block breadcrumb %}Email de confirmación{% endblock %}
+
+{% block dash_content %}
+<div class="two-panel-layout">
+
+  <!-- Form -->
+  <div>
+    <form method="POST" action="{{ url_for('dashboard.email_settings') }}">
+
+      <div class="form-section">
+        <h3 class="form-section__title">✉️ Mensaje de confirmación</h3>
+
+        <div class="form-group">
+          <label class="checkbox-label" style="font-size:.9rem;color:#374151;gap:.6rem;cursor:pointer">
+            <input type="checkbox" name="send_confirmation"
+                   {% if business.send_confirmation != False %}checked{% endif %}
+                   style="width:16px;height:16px;accent-color:#e94560">
+            Enviar email de confirmación automáticamente al cliente
+          </label>
+          <small>Requiere configurar MAIL_USERNAME y MAIL_PASSWORD en el archivo .env</small>
+        </div>
+
+        <div class="form-group">
+          <label>Asunto del email</label>
+          <input type="text" name="email_subject"
+                 value="{{ business.email_subject or 'Tu reserva ha sido recibida ✓' }}"
+                 placeholder="Tu reserva ha sido recibida ✓">
+          <small>Aparece como título del email que recibe el cliente</small>
+        </div>
+
+        <div class="form-group">
+          <label>Mensaje principal</label>
+          <textarea name="email_greeting" rows="3"
+                    placeholder="Hola {nombre}, gracias por reservar...">{{ business.email_greeting or '' }}</textarea>
+          <small>Usa <code>{nombre}</code> para insertar el nombre del cliente automáticamente</small>
+        </div>
+
+        <div class="form-group">
+          <label>Mensaje de pie</label>
+          <textarea name="email_footer_msg" rows="2"
+                    placeholder="Si tienes alguna pregunta no dudes en contactarnos.">{{ business.email_footer_msg or '' }}</textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section__title">🎨 Diseño del email</h3>
+        <div class="color-grid">
+          <div class="form-group">
+            <label>Color de acento (header y botones)</label>
+            <div class="color-input-wrap">
+              <input type="color" name="email_accent_color"
+                     value="{{ business.email_accent_color or '#000000' }}">
+              <span style="font-size:.85rem;color:#6b7280">{{ business.email_accent_color or '#000000' }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color de fondo del email</label>
+            <div class="color-input-wrap">
+              <input type="color" name="email_bg_color"
+                     value="{{ business.email_bg_color or '#f0f2f5' }}">
+              <span style="font-size:.85rem;color:#6b7280">{{ business.email_bg_color or '#f0f2f5' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="email-palette-hint">
+          <span>Paletas rápidas:</span>
+          <button type="button" class="ep-btn" onclick="setEmailColors('#000000','#f0f2f5')">⬛ Negro</button>
+          <button type="button" class="ep-btn" onclick="setEmailColors('#1a1a2e','#f0f2f5')">🌌 Azul oscuro</button>
+          <button type="button" class="ep-btn" onclick="setEmailColors('#065f46','#f0faf5')">🌿 Verde</button>
+          <button type="button" class="ep-btn" onclick="setEmailColors('#7c3aed','#f5f3ff')">💜 Morado</button>
+          <button type="button" class="ep-btn" onclick="setEmailColors('#b45309','#fffbeb')">🟡 Dorado</button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--accent btn--lg">Guardar configuración</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Preview -->
+  <div>
+    <div class="preview-label">Vista previa del email</div>
+    <div class="email-preview" id="email-preview">
+      <div class="ep-header" id="ep-header" style="background:{{ business.email_accent_color or '#000000' }};padding:28px;text-align:center;border-radius:12px 12px 0 0;">
+        <div style="font-size:24px;margin-bottom:6px;">✓</div>
+        <div id="ep-bizname" style="font-size:16px;font-weight:700;color:#fff;">{{ business.name }}</div>
+      </div>
+      <div class="ep-body" id="ep-body" style="background:#fff;padding:24px;border-radius:0 0 12px 12px;">
+        <div style="text-align:center;margin-bottom:16px;">
+          <strong style="font-size:15px;">¡Reserva recibida!</strong>
+        </div>
+        <div id="ep-greeting" style="font-size:13px;color:#4b5563;margin-bottom:16px;line-height:1.6;">
+          {{ (business.email_greeting or 'Hola {nombre}, gracias por reservar.').replace('{nombre}','Cliente') }}
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:14px;font-size:12px;color:#374151;margin-bottom:16px;">
+          <div style="margin-bottom:6px;"><strong>Servicio:</strong> Corte de cabello</div>
+          <div style="margin-bottom:6px;"><strong>Fecha:</strong> Lunes 14 de abril</div>
+          <div><strong>Hora:</strong> 10:30</div>
+        </div>
+        <div id="ep-footer" style="font-size:12px;color:#6b7280;margin-bottom:16px;line-height:1.5;">
+          {{ business.email_footer_msg or 'Si tienes alguna pregunta no dudes en contactarnos.' }}
+        </div>
+        <div style="text-align:center;">
+          <span style="display:inline-block;padding:8px 20px;background:#f3f4f6;color:#374151;border-radius:6px;font-size:12px;">✕ Cancelar mi reserva</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.two-panel-layout { display:grid; grid-template-columns:1fr 340px; gap:2rem; }
+.email-preview { border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.08); }
+.email-palette-hint { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; font-size:.83rem; color:#6b7280; }
+.ep-btn { padding:.3rem .75rem; border:1.5px solid #e5e7eb; border-radius:6px; background:#f9fafb; font-size:.8rem; cursor:pointer; transition:.15s; }
+.ep-btn:hover { border-color:#374151; }
+@media(max-width:900px){ .two-panel-layout{grid-template-columns:1fr;} }
+</style>
+
+<script>
+function setEmailColors(accent, bg) {
+  document.querySelector('input[name="email_accent_color"]').value = accent;
+  document.querySelector('input[name="email_bg_color"]').value = bg;
+  document.getElementById('ep-header').style.background = accent;
+}
+
+// Live preview updates
+document.querySelector('input[name="email_accent_color"]').addEventListener('input', function() {
+  document.getElementById('ep-header').style.background = this.value;
+});
+document.querySelector('textarea[name="email_greeting"]').addEventListener('input', function() {
+  document.getElementById('ep-greeting').textContent = this.value.replace('{nombre}','Cliente');
+});
+document.querySelector('textarea[name="email_footer_msg"]').addEventListener('input', function() {
+  document.getElementById('ep-footer').textContent = this.value;
+});
+document.querySelector('input[name="email_subject"]').addEventListener('input', function() {
+  document.getElementById('ep-bizname').textContent = '{{ business.name }}';
+});
+</script>
+{% endblock %}

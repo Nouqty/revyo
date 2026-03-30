@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancelar reserva — {{ business.name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/booking.css') }}">
+  <style>
+    :root {
+      --biz-primary: {{ business.primary_color }};
+      --biz-secondary: {{ business.secondary_color }};
+      --biz-accent: {{ business.accent_color }};
+      --biz-text: {{ business.text_color }};
+      --biz-font: 'DM Sans', sans-serif;
+      --biz-dark-bg: {{ business.dark_bg_color or '#0f0f1a' }};
+      --biz-dark-card: {{ business.dark_card_color or '#1a1a2e' }};
+    }
+  </style>
+</head>
+<body class="booking-body">
+<header class="biz-header header-{{ business.header_style or 'gradient' }}">
+  <div class="biz-header__inner">
+    <div class="biz-header__left">
+      {% if business.logo_url %}<img src="{{ business.logo_url }}" class="biz-header__logo" alt="{{ business.name }}">{% endif %}
+      <div class="biz-header__info"><h1 class="biz-header__name">{{ business.name }}</h1></div>
+    </div>
+  </div>
+</header>
+
+<main class="booking-main">
+  <div class="booking-container booking-container--narrow">
+    <div class="cancel-card">
+      <div class="cancel-icon">⚠️</div>
+      <h2>¿Cancelar tu reserva?</h2>
+      <p>Estás a punto de cancelar la siguiente cita:</p>
+
+      <div class="cancel-details">
+        <div class="conf-row"><span>Nombre</span><strong>{{ appt.customer_name }}</strong></div>
+        {% if appt.service %}<div class="conf-row"><span>Servicio</span><strong>{{ appt.service.name }}</strong></div>{% endif %}
+        <div class="conf-row"><span>Fecha</span><strong>{{ appt.date|format_date }}</strong></div>
+        <div class="conf-row"><span>Hora</span><strong>{{ appt.time|format_time }}</strong></div>
+      </div>
+
+      <div class="cancel-actions">
+        <form method="POST" action="{{ url_for('booking.cancel_appointment_confirm', token=token) }}">
+          <button type="submit" class="btn-danger-full">Sí, cancelar mi reserva</button>
+        </form>
+        <a href="{{ url_for('booking.page', slug=business.slug) }}" class="btn-back-link">
+          ← No cancelar, volver
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="booking-footer">
+  <a href="/" class="booking-footer__brand">Made by <strong>Nouqty</strong></a>
+</footer>
+
+<style>
+.cancel-card { background: var(--surface); border-radius: 16px; padding: 2.5rem; text-align: center; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+.cancel-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.cancel-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; color: var(--text); }
+.cancel-card > p { color: var(--text2); margin-bottom: 1.5rem; }
+.cancel-details { background: var(--surface2); border-radius: 10px; padding: 1.25rem; text-align: left; margin-bottom: 1.75rem; }
+.conf-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .9rem; }
+.conf-row:last-child { border-bottom: none; }
+.conf-row span { color: var(--text2); }
+.conf-row strong { color: var(--text); }
+.cancel-actions { display: flex; flex-direction: column; gap: .75rem; align-items: center; }
+.btn-danger-full { width: 100%; padding: .85rem; background: #ef4444; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.btn-back-link { color: var(--text3); font-size: .9rem; text-decoration: none; }
+.btn-back-link:hover { color: var(--biz-accent); }
+</style>
+</body>
+</html>

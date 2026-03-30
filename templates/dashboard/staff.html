@@ -1,0 +1,171 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Colaboradores — {{ business.name }}{% endblock %}
+{% block breadcrumb %}Colaboradores{% endblock %}
+
+{% block dash_content %}
+<div class="dash-section">
+  <div class="dash-section__header">
+    <div>
+      <h2>Colaboradores</h2>
+      <p style="font-size:.85rem;color:var(--d-text2,#6b7280);margin-top:.2rem">Aparecen en la página de reservas para que el cliente elija con quién atenderse</p>
+    </div>
+    <button onclick="document.getElementById('add-staff-modal').style.display='flex'" class="btn btn--accent btn--sm">+ Agregar</button>
+  </div>
+
+  {% if staff_list %}
+  <div class="staff-grid">
+    {% for person in staff_list %}
+    <div class="staff-card {% if not person.is_active %}staff-card--inactive{% endif %}">
+      <div class="staff-card__avatar-wrap">
+        {% if person.avatar_url %}
+          <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="staff-avatar-lg">
+        {% else %}
+          <div class="staff-avatar-lg staff-avatar-placeholder">{{ person.name[0]|upper }}</div>
+        {% endif %}
+      </div>
+      <div class="staff-card__body">
+        <div class="staff-name-lg">{{ person.name }}</div>
+        {% if person.role %}<div class="staff-role-lg">{{ person.role }}</div>{% endif %}
+        {% if person.bio %}<div class="staff-bio-lg">{{ person.bio }}</div>{% endif %}
+        <div class="staff-contact">
+          {% if person.instagram %}
+          <a href="https://instagram.com/{{ person.instagram }}" target="_blank" class="staff-contact-link staff-ig">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            @{{ person.instagram }}
+          </a>
+          {% endif %}
+          {% if person.email %}
+          <a href="mailto:{{ person.email }}" class="staff-contact-link staff-em">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            {{ person.email }}
+          </a>
+          {% endif %}
+          {% if person.phone %}
+          <span class="staff-contact-link staff-ph">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.21 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.92 6.92l1.27-.61a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            {{ person.phone }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="staff-card__actions">
+        <form method="POST" style="display:inline">
+          <input type="hidden" name="action" value="toggle">
+          <input type="hidden" name="staff_id" value="{{ person.id }}">
+          <button type="submit" class="btn btn--ghost btn--xs">{% if person.is_active %}Desactivar{% else %}Activar{% endif %}</button>
+        </form>
+        <form method="POST" style="display:inline" onsubmit="return confirm('¿Eliminar?')">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="staff_id" value="{{ person.id }}">
+          <button type="submit" class="btn btn--danger btn--xs">Eliminar</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state__icon">👥</div>
+    <p>Aún no tienes colaboradores</p>
+    <p class="empty-state__sub">Agrégalos y tus clientes podrán elegir con quién atenderse</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="add-staff-modal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:520px">
+    <div class="modal__header">
+      <h3>Nuevo colaborador</h3>
+      <button onclick="document.getElementById('add-staff-modal').style.display='none'" class="modal__close">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('dashboard.staff') }}" enctype="multipart/form-data">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Foto de perfil</label>
+        <div class="avatar-upload-zone" onclick="document.getElementById('avatar-input').click()">
+          <img id="avatar-preview" style="display:none;width:72px;height:72px;border-radius:50%;object-fit:cover;">
+          <div id="avatar-placeholder" style="text-align:center">
+            <div style="font-size:2rem">📷</div>
+            <p style="font-size:.82rem;margin:.25rem 0 0;color:#6b7280">Haz clic para subir foto</p>
+            <small style="font-size:.75rem;color:#9ca3af">JPG, PNG · Máx 5MB</small>
+          </div>
+        </div>
+        <input type="file" name="avatar" id="avatar-input" accept=".jpg,.jpeg,.png,.webp" style="display:none" onchange="previewAvatar(this)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" name="name" placeholder="ej. Carlos Rodríguez" required>
+        </div>
+        <div class="form-group">
+          <label>Rol / Especialidad</label>
+          <input type="text" name="role" placeholder="ej. Barbero Senior">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea name="bio" rows="2" placeholder="ej. 5 años de experiencia en cortes modernos"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Instagram</label>
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <span style="color:#9ca3af;font-size:.9rem">@</span>
+            <input type="text" name="instagram" placeholder="tucuenta" style="flex:1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" name="phone" placeholder="+56 9 1234 5678">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email del colaborador</label>
+        <input type="email" name="staff_email" placeholder="colaborador@email.com">
+        <small>Recibirá notificaciones cuando le reserven una cita</small>
+      </div>
+      <div class="modal__actions">
+        <button type="button" onclick="document.getElementById('add-staff-modal').style.display='none'" class="btn btn--ghost">Cancelar</button>
+        <button type="submit" class="btn btn--accent">Agregar colaborador</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.staff-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.25rem; }
+.staff-card { background:var(--d-surface,#fff); border:1px solid var(--d-border,#e5e7eb); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; }
+.staff-card--inactive { opacity:.5; }
+.staff-card__avatar-wrap { height:140px; background:linear-gradient(135deg,#f3f4f6,#e5e7eb); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.dash-layout[data-theme="dark"] .staff-card__avatar-wrap { background:rgba(255,255,255,.05); }
+.staff-avatar-lg { width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #fff; box-shadow:0 4px 16px rgba(0,0,0,.15); }
+.staff-avatar-placeholder { background:var(--dash-accent,#e94560); color:#fff; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:700; }
+.staff-card__body { padding:1rem 1.25rem; flex:1; }
+.staff-name-lg { font-size:1.05rem; font-weight:700; color:var(--d-text,#111827); margin-bottom:.2rem; }
+.staff-role-lg { font-size:.82rem; font-weight:600; color:var(--dash-accent,#e94560); margin-bottom:.5rem; }
+.staff-bio-lg { font-size:.83rem; color:var(--d-text2,#6b7280); line-height:1.5; margin-bottom:.75rem; }
+.staff-contact { display:flex; flex-direction:column; gap:.3rem; }
+.staff-contact-link { display:inline-flex; align-items:center; gap:.4rem; font-size:.8rem; text-decoration:none; color:var(--d-text2,#6b7280); transition:.15s; }
+.staff-ig:hover { color:#e1306c; }
+.staff-em:hover { color:#3b82f6; }
+.staff-card__actions { padding:.75rem 1.25rem; border-top:1px solid var(--d-border,#f3f4f6); display:flex; gap:.4rem; }
+.avatar-upload-zone { border:2px dashed var(--d-border,#e5e7eb); border-radius:10px; padding:1.25rem; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; min-height:100px; }
+.avatar-upload-zone:hover { border-color:var(--dash-accent,#e94560); }
+</style>
+
+<script>
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('avatar-preview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      document.getElementById('avatar-placeholder').style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block content %}
+<div class="dash-layout" id="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__header">
+      <a href="/" class="sidebar__logo">Revyo</a>
+      <button class="dash-theme-btn" id="dash-theme-btn" title="Modo oscuro/claro" onclick="toggleDashTheme()">
+        <span class="dth-sun">☀️</span>
+        <span class="dth-moon">🌙</span>
+      </button>
+    </div>
+
+    {% if current_user.business %}
+    <div class="sidebar__biz">
+      {% if current_user.business.logo_url %}
+        <img src="{{ current_user.business.logo_url }}" alt="logo" class="sidebar__biz-logo">
+      {% else %}
+        <div class="sidebar__biz-avatar">{{ current_user.business.name[0]|upper }}</div>
+      {% endif %}
+      <div>
+        <div class="sidebar__biz-name">{{ current_user.business.name }}</div>
+        <div class="{% if current_user.has_active_subscription %}status--active{% else %}status--inactive{% endif %}">
+          {% if current_user.has_active_subscription %}● Activo{% else %}● Sin suscripción{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <nav class="sidebar__nav">
+      <a href="{{ url_for('dashboard.index') }}" class="sidebar__link {% if request.endpoint == 'dashboard.index' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">◻</span> Panel
+      </a>
+      <a href="{{ url_for('dashboard.appointments') }}" class="sidebar__link {% if request.endpoint == 'dashboard.appointments' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">📅</span> Reservas
+      </a>
+      <a href="{{ url_for('dashboard.services') }}" class="sidebar__link {% if request.endpoint == 'dashboard.services' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">⚡</span> Servicios
+      </a>
+      <a href="{{ url_for('dashboard.staff') }}" class="sidebar__link {% if request.endpoint == 'dashboard.staff' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">👥</span> Colaboradores
+      </a>
+      <a href="{{ url_for('dashboard.hours') }}" class="sidebar__link {% if request.endpoint == 'dashboard.hours' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">🕐</span> Horarios
+      </a>
+
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section-label">Personalización</div>
+
+      <a href="{{ url_for('dashboard.customize') }}" class="sidebar__link {% if request.endpoint == 'dashboard.customize' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">🎨</span> Página del cliente
+      </a>
+      <a href="{{ url_for('dashboard.email_settings') }}" class="sidebar__link {% if request.endpoint == 'dashboard.email_settings' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">✉️</span> Email
+      </a>
+
+      <div class="sidebar__divider"></div>
+
+      {% if current_user.business %}
+      <a href="{{ url_for('booking.page', slug=current_user.business.slug) }}" target="_blank" class="sidebar__link sidebar__link--external">
+        <span class="sidebar__link-icon">🔗</span> Ver mi página ↗
+      </a>
+      {% endif %}
+      <a href="{{ url_for('payment.plans') }}" class="sidebar__link {% if request.endpoint == 'payment.plans' %}sidebar__link--active{% endif %}">
+        <span class="sidebar__link-icon">💳</span> Suscripción
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar__link sidebar__link--logout">
+        <span class="sidebar__link-icon">←</span> Cerrar sesión
+      </a>
+    </nav>
+
+    <div class="sidebar__nouqty">Made by <strong style="color:rgba(255,255,255,.6)">Nouqty</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <button class="dash-topbar__menu" onclick="document.getElementById('sidebar').classList.toggle('sidebar--open')">☰</button>
+      <div class="dash-topbar__breadcrumb">{% block breadcrumb %}Panel{% endblock %}</div>
+      <div class="dash-topbar__user">{{ current_user.name }}</div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for category, message in messages %}
+        <div class="dash-alert dash-alert--{{ category }}">{{ message }}</div>
+      {% endfor %}{% endif %}
+    {% endwith %}
+
+    <div class="dash-content">{% block dash_content %}{% endblock %}</div>
+  </main>
+</div>
+
+<script>
+// Dashboard dark mode
+function toggleDashTheme() {
+  const layout = document.getElementById('dash-layout');
+  const isDark = layout.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  layout.setAttribute('data-theme', next);
+  localStorage.setItem('revyo-dash-theme', next);
+}
+(function() {
+  const saved = localStorage.getItem('revyo-dash-theme') || 'light';
+  document.getElementById('dash-layout').setAttribute('data-theme', saved);
+})();
+</script>
+{% endblock %}
