@@ -24,6 +24,18 @@ def send_confirmation_email(appt, business):
         return
     if not current_app.config.get('MAIL_USERNAME'):
         return
+    import threading
+    t = threading.Thread(target=_send_email_async, args=(current_app._get_current_object(), appt.id, business.id))
+    t.daemon = True
+    t.start()
+
+def _send_email_async(app, appt_id, business_id):
+    with app.app_context():
+        from models import Appointment, Business
+        appt = Appointment.query.get(appt_id)
+        business = Business.query.get(business_id)
+        if not appt or not business:
+            return
     try:
         from flask_mail import Message
         from app import mail
@@ -63,6 +75,17 @@ def notify_staff(appt):
         return
     if not current_app.config.get('MAIL_USERNAME'):
         return
+    import threading
+    t = threading.Thread(target=_notify_staff_async, args=(current_app._get_current_object(), appt.id))
+    t.daemon = True
+    t.start()
+
+def _notify_staff_async(app, appt_id):
+    with app.app_context():
+        from models import Appointment
+        appt = Appointment.query.get(appt_id)
+        if not appt:
+            return
     try:
         from flask_mail import Message
         from app import mail
