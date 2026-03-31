@@ -1,38 +1,45 @@
-import resend
 import logging
-from flask import current_app, render_template, url_for
+import threading
+from flask import current_app, render_template
 
 
-def send_email(to, subject, html):
-    """Envía email via Resend."""
-    api_key = current_app.config.get('RESEND_API_KEY', '')
+def send_email(to, subject, html, from_name='Revyo'):
+    """Envía email via Brevo (Sendinblue)."""
+    api_key = current_app.config.get('BREVO_API_KEY', '')
     if not api_key:
-        logging.warning('RESEND_API_KEY no configurado')
+        logging.warning('BREVO_API_KEY no configurado')
         return False
     try:
-        resend.api_key = api_key
-        sender = current_app.config.get('MAIL_DEFAULT_SENDER', 'Revyo <onboarding@resend.dev>')
-        # Resend requiere formato "Nombre <email>"
-        if '@' in sender and '<' not in sender:
-            sender = f'Revyo <{sender}>'
-        resend.Emails.send({
-            'from': sender,
-            'to': [to],
+        import urllib.request
+        import json
+        sender_email = current_app.config.get('MAIL_USERNAME', 'reservas.revyo@gmail.com')
+        data = json.dumps({
+            'sender': {'name': from_name, 'email': sender_email},
+            'to': [{'email': to}],
             'subject': subject,
-            'html': html,
-        })
-        logging.info(f'Email enviado a {to}')
-        return True
+            'htmlContent': html
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.brevo.com/v3/smtp/email',
+            data=data,
+            headers={
+                'accept': 'application/json',
+                'api-key': api_key,
+                'content-type': 'application/json'
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            logging.info(f'Email enviado a {to} - status {resp.status}')
+            return True
     except Exception as e:
-        logging.warning(f'Error Resend: {e}')
+        logging.warning(f'Error Brevo: {e}')
         return False
 
 
 def send_confirmation_email(appt, business):
-    """Email de confirmación al cliente."""
     if not business.send_confirmation or not appt.customer_email:
         return
-    import threading
     t = threading.Thread(
         target=_send_confirmation_async,
         args=(current_app._get_current_object(), appt.id, business.id)
@@ -49,16 +56,13 @@ def _send_confirmation_async(app, appt_id, business_id):
         business = Business.query.get(business_id)
         if not appt or not business:
             return
-
         s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
         token = s.dumps({'appt_id': appt_id}, salt='cancel-appt')
         cancel_url = f"{app.config.get('APP_URL', '')}/cancelar/{token}"
-
         greeting = (business.email_greeting or '').replace('{nombre}', appt.customer_name)
         accent = business.email_accent_color or '#000000'
         r, g, b = int(accent[1:3],16), int(accent[3:5],16), int(accent[5:7],16)
         header_text = '#ffffff' if (0.299*r+0.587*g+0.114*b)/255 < 0.5 else '#000000'
-
         html = render_template('email/confirmation.html',
             subject=business.email_subject or 'Tu reserva ha sido recibida',
             biz_name=business.name,
@@ -77,15 +81,14 @@ def _send_confirmation_async(app, appt_id, business_id):
         send_email(
             to=appt.customer_email,
             subject=business.email_subject or f'Reserva en {business.name} ✓',
-            html=html
+            html=html,
+            from_name=business.name
         )
 
 
 def notify_staff(appt):
-    """Email al colaborador cuando le hacen una reserva."""
     if not appt.staff or not appt.staff.email:
         return
-    import threading
     t = threading.Thread(
         target=_notify_staff_async,
         args=(current_app._get_current_object(), appt.id)
