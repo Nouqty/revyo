@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from datetime import datetime, date, time, timedelta
 from models import db, Business, Service, WorkingHours, Appointment
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from routes.email_service import send_confirmation_email, notify_staff
 
 booking_bp = Blueprint('booking', __name__)
 
@@ -16,113 +17,6 @@ def verify_cancel_token(token, max_age=60*60*24*7):
         return data.get('appt_id')
     except (BadSignature, SignatureExpired):
         return None
-
-def send_confirmation_email(appt, business):
-    if not business.send_confirmation:
-        return
-    if not appt.customer_email:
-        return
-    if not current_app.config.get('MAIL_USERNAME'):
-        return
-    import threading
-    t = threading.Thread(target=_send_email_async, args=(current_app._get_current_object(), appt.id, business.id))
-    t.daemon = True
-    t.start()
-
-def _send_email_async(app, appt_id, business_id):
-    with app.app_context():
-        from models import Appointment, Business
-        appt = Appointment.query.get(appt_id)
-        business = Business.query.get(business_id)
-        if not appt or not business:
-            return
-    try:
-        from flask_mail import Message
-        from app import mail
-        cancel_url = url_for('booking.cancel_appointment', token=get_cancel_token(appt.id), _external=True)
-        greeting = (business.email_greeting or '').replace('{nombre}', appt.customer_name)
-        accent = business.email_accent_color or '#000000'
-        r, g, b = int(accent[1:3],16), int(accent[3:5],16), int(accent[5:7],16)
-        header_text = '#ffffff' if (0.299*r+0.587*g+0.114*b)/255 < 0.5 else '#000000'
-        html_body = render_template('email/confirmation.html',
-            subject=business.email_subject or 'Tu reserva ha sido recibida',
-            biz_name=business.name,
-            logo_url=request.host_url.rstrip('/')+business.logo_url if business.logo_url else None,
-            biz_address=business.address or '',
-            greeting=greeting,
-            footer_msg=business.email_footer_msg or '',
-            service_name=appt.service.name if appt.service else '',
-            appt_date=appt.date.strftime('%A %d de %B de %Y') if appt.date else '',
-            appt_time=appt.time.strftime('%H:%M') if appt.time else '',
-            cancel_url=cancel_url,
-            accent=accent,
-            header_text=header_text,
-            email_bg=business.email_bg_color or '#f0f2f5',
-        )
-        msg = Message(
-            subject=business.email_subject or f'Reserva en {business.name} confirmada',
-            recipients=[appt.customer_email],
-            html=html_body,
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER')
-        )
-        mail.send(msg)
-    except Exception as e:
-        current_app.logger.warning(f'Email cliente no enviado: {e}')
-
-def notify_staff(appt):
-    """Notifica al colaborador cuando le hacen una reserva."""
-    if not appt.staff or not appt.staff.email:
-        return
-    if not current_app.config.get('MAIL_USERNAME'):
-        return
-    import threading
-    t = threading.Thread(target=_notify_staff_async, args=(current_app._get_current_object(), appt.id))
-    t.daemon = True
-    t.start()
-
-def _notify_staff_async(app, appt_id):
-    with app.app_context():
-        from models import Appointment
-        appt = Appointment.query.get(appt_id)
-        if not appt:
-            return
-    try:
-        from flask_mail import Message
-        from app import mail
-        precio = appt.service.price_display() if appt.service else 'No especificado'
-        html = (
-            '<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:20px">'
-            '<div style="background:#111827;padding:20px;border-radius:12px 12px 0 0;text-align:center">'
-            f'<h2 style="color:#fff;margin:0;font-size:18px">Nueva reserva 📅</h2>'
-            '</div>'
-            '<div style="background:#fff;padding:24px;border-radius:0 0 12px 12px;border:1px solid #e5e7eb;border-top:none">'
-            f'<p style="font-size:15px;margin:0 0 16px">Hola <b>{appt.staff.name}</b>, tienes una nueva cita:</p>'
-            '<div style="background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:16px">'
-            f'<p style="margin:6px 0"><b>👤 Cliente:</b> {appt.customer_name}</p>'
-            f'<p style="margin:6px 0"><b>📱 Teléfono:</b> {appt.customer_phone or "No indicado"}</p>'
-            f'<p style="margin:6px 0"><b>✉️ Email:</b> {appt.customer_email or "No indicado"}</p>'
-            + (f'<p style="margin:6px 0"><b>⚡ Servicio:</b> {appt.service.name}</p>' if appt.service else '')
-            + (f'<p style="margin:6px 0"><b>💰 Precio:</b> {precio}</p>' if appt.service else '')
-            + (f'<p style="margin:6px 0"><b>📅 Fecha:</b> {appt.date.strftime("%d/%m/%Y")}</p>' if appt.date else '')
-            + (f'<p style="margin:6px 0"><b>🕐 Hora:</b> {appt.time.strftime("%H:%M")}</p>' if appt.time else '')
-            + (f'<p style="margin:6px 0"><b>📝 Notas:</b> {appt.notes}</p>' if appt.notes else '')
-            + '</div>'
-            '<p style="color:#6b7280;font-size:13px;margin:0">¡Que te vaya bien con la cita!</p>'
-            '<hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0">'
-            '<p style="font-size:11px;color:#9ca3af;text-align:center">Revyo · Made by Nouqty</p>'
-            '</div></div>'
-        )
-        hora = appt.time.strftime('%H:%M') if appt.time else ''
-        msg = Message(
-            subject=f'📅 Nueva cita — {appt.customer_name} a las {hora}',
-            recipients=[appt.staff.email],
-            html=html,
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER')
-        )
-        mail.send(msg)
-        current_app.logger.info(f'Notif colaborador enviada a {appt.staff.email}')
-    except Exception as e:
-        current_app.logger.warning(f'Email colaborador no enviado: {e}')
 
 def get_available_slots(business, target_date):
     weekday = target_date.weekday()
