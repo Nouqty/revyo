@@ -97,32 +97,20 @@
 <!-- Quick actions -->
 <div class="quick-actions">
   <a href="{{ url_for('dashboard.customize') }}" class="quick-action">
-    <span>🎨</span>
-    <div>
-      <strong>Personalizar página</strong>
-      <small>Colores, logo y diseño</small>
-    </div>
+    <div class="quick-action__icon">🎨</div>
+    <div><strong>Personalizar</strong><small>Colores, logo y diseño</small></div>
   </a>
   <a href="{{ url_for('dashboard.services') }}" class="quick-action">
-    <span>⚡</span>
-    <div>
-      <strong>Gestionar servicios</strong>
-      <small>Agrega o edita servicios</small>
-    </div>
+    <div class="quick-action__icon">⚡</div>
+    <div><strong>Servicios</strong><small>Agrega o edita servicios</small></div>
   </a>
   <a href="{{ url_for('dashboard.hours') }}" class="quick-action">
-    <span>🕐</span>
-    <div>
-      <strong>Horarios de atención</strong>
-      <small>Configura cuándo atiendes</small>
-    </div>
+    <div class="quick-action__icon">🕐</div>
+    <div><strong>Horarios</strong><small>Configura cuándo atiendes</small></div>
   </a>
   <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank" class="quick-action">
-    <span>🔗</span>
-    <div>
-      <strong>Ver mi página</strong>
-      <small>Como la ve el cliente</small>
-    </div>
+    <div class="quick-action__icon">🔗</div>
+    <div><strong>Ver mi página</strong><small>Como la ve el cliente</small></div>
   </a>
 </div>
 

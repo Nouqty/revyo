@@ -5,65 +5,54 @@
 {% block content %}
 <div class="auth-wrapper">
   <div class="auth-card">
+    <a href="/" class="auth-logo">Revyo</a>
     <div class="auth-card__header">
-      <a href="/" class="auth-logo">
-        Revyo
-      </a>
       <h1>Bienvenido de nuevo</h1>
       <p>Ingresa a tu panel de control</p>
     </div>
-
     <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email"
-               placeholder="tu@email.com"
-               value="{{ request.form.get('email', '') }}"
-               required autocomplete="email">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="tu@email.com" value="{{ request.form.get('email', '') }}" required autocomplete="email">
       </div>
-
       <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password"
-               placeholder="••••••••"
-               required autocomplete="current-password">
+        <label>Contraseña</label>
+        <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
       </div>
-
-      <label class="checkbox-label">
+      <label class="checkbox-label" style="margin-top:.25rem">
         <input type="checkbox" name="remember">
-        <span>Mantener sesión iniciada</span>
+        <span style="font-size:.875rem;color:var(--text2)">Mantener sesión iniciada</span>
       </label>
-
-      <button type="submit" class="btn btn--accent btn--full btn--lg">
-        Iniciar sesión
-      </button>
+      <button type="submit" class="btn btn--accent btn--full btn--lg" style="margin-top:.5rem">Iniciar sesión</button>
     </form>
-
     <div class="auth-card__footer">
-      ¿No tienes cuenta?
-      <a href="{{ url_for('auth.register') }}">Regístrate gratis →</a>
+      ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate gratis →</a>
     </div>
+    <p style="text-align:center;margin-top:2rem;font-size:.7rem;font-weight:700;color:var(--text3);letter-spacing:.05em">Made by <span style="color:var(--text2)">Nouqty</span></p>
   </div>
 
   <div class="auth-side">
     <div class="auth-side__content">
-      <h2>Todo tu negocio en un link</h2>
+      <h2>Todo tu negocio<br>en un link</h2>
       <div class="auth-features">
         <div class="auth-feature">
-          <span>🎨</span>
+          <div class="auth-feature__icon">🎨</div>
           <p>Página 100% personalizable con tus colores y logo</p>
         </div>
         <div class="auth-feature">
-          <span>📅</span>
-          <p>Reservas online las 24 horas</p>
+          <div class="auth-feature__icon">📅</div>
+          <p>Reservas online las 24 horas, sin intervención tuya</p>
         </div>
         <div class="auth-feature">
-          <span>⚡</span>
+          <div class="auth-feature__icon">✉️</div>
+          <p>Emails automáticos de confirmación y recordatorio</p>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature__icon">⚡</div>
           <p>Lista en menos de 5 minutos</p>
         </div>
       </div>
     </div>
   </div>
-  <p style="text-align:center;margin-top:2rem;font-size:11px;font-weight:700;color:#888;letter-spacing:.05em;">Made by <span style=color:#444>Nouqty</span></p>
 </div>
 {% endblock %}

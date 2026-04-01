@@ -5,88 +5,57 @@
 {% block content %}
 <div class="auth-wrapper auth-wrapper--register">
   <div class="auth-card">
+    <a href="/" class="auth-logo">Revyo</a>
     <div class="auth-card__header">
-      <a href="/" class="auth-logo">
-        Revyo
-      </a>
       <h1>Empieza gratis</h1>
       <p>7 días de prueba · Sin tarjeta de crédito</p>
     </div>
-
     <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
-
       <div class="form-row">
         <div class="form-group">
-          <label for="name">Tu nombre</label>
-          <input type="text" id="name" name="name"
-                 placeholder="Juan Pérez"
-                 value="{{ name or request.form.get('name', '') }}"
-                 required>
+          <label>Tu nombre</label>
+          <input type="text" name="name" placeholder="Juan Pérez" value="{{ name or request.form.get('name', '') }}" required>
         </div>
         <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email"
-                 placeholder="tu@email.com"
-                 value="{{ email or request.form.get('email', '') }}"
-                 required autocomplete="email">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="tu@email.com" value="{{ email or request.form.get('email', '') }}" required>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" name="password"
-                 placeholder="Mínimo 6 caracteres"
-                 required>
+          <label>Contraseña</label>
+          <input type="password" name="password" placeholder="Mínimo 6 caracteres" required>
         </div>
         <div class="form-group">
-          <label for="password2">Confirmar contraseña</label>
-          <input type="password" id="password2" name="password2"
-                 placeholder="Repite tu contraseña"
-                 required>
+          <label>Confirmar contraseña</label>
+          <input type="password" name="password2" placeholder="Repite tu contraseña" required>
         </div>
       </div>
-
-      <div class="form-divider">
-        <span>Tu negocio</span>
-      </div>
-
+      <div class="form-divider"><span>Tu negocio</span></div>
       <div class="form-row">
         <div class="form-group form-group--wide">
-          <label for="business_name">Nombre del negocio</label>
-          <input type="text" id="business_name" name="business_name"
-                 placeholder="ej. Barbería El Estilo"
-                 value="{{ business_name or request.form.get('business_name', '') }}"
-                 required>
+          <label>Nombre del negocio</label>
+          <input type="text" name="business_name" placeholder="ej. Barbería El Estilo" value="{{ business_name or request.form.get('business_name', '') }}" required>
         </div>
         <div class="form-group">
-          <label for="category">Categoría</label>
-          <select id="category" name="category">
-            <option value="barberia" {% if (category or request.form.get('category')) == 'barberia' %}selected{% endif %}>✂ Barbería</option>
-            <option value="gym" {% if (category or request.form.get('category')) == 'gym' %}selected{% endif %}>💪 Gimnasio / Entrenador</option>
-            <option value="spa" {% if (category or request.form.get('category')) == 'spa' %}selected{% endif %}>💆 Spa / Masajes</option>
-            <option value="salon" {% if (category or request.form.get('category')) == 'salon' %}selected{% endif %}>💅 Salón de belleza</option>
-            <option value="dental" {% if (category or request.form.get('category')) == 'dental' %}selected{% endif %}>🦷 Dental / Salud</option>
-            <option value="otro" {% if not category or (category or request.form.get('category')) == 'otro' %}selected{% endif %}>📍 Otro</option>
+          <label>Categoría</label>
+          <select name="category">
+            <option value="barberia">Barbería</option>
+            <option value="gym">Gimnasio</option>
+            <option value="spa">Spa / Masajes</option>
+            <option value="salon">Salón de belleza</option>
+            <option value="dental">Dental / Salud</option>
+            <option value="otro" selected>Otro</option>
           </select>
         </div>
       </div>
-
-      <button type="submit" class="btn btn--accent btn--full btn--lg">
-        Crear mi página gratis →
-      </button>
-
-      <p class="form-terms">
-        Al registrarte aceptas nuestros
-        <a href="#">Términos de uso</a> y <a href="#">Política de privacidad</a>
-      </p>
+      <button type="submit" class="btn btn--accent btn--full btn--lg">Crear mi página gratis →</button>
+      <p class="form-terms">Al registrarte aceptas nuestros <a href="#">Términos de uso</a> y <a href="#">Privacidad</a></p>
     </form>
-
     <div class="auth-card__footer">
-      ¿Ya tienes cuenta?
-      <a href="{{ url_for('auth.login') }}">Iniciar sesión →</a>
+      ¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Iniciar sesión →</a>
     </div>
+    <p style="text-align:center;margin-top:1.5rem;font-size:.7rem;font-weight:700;color:var(--text3);letter-spacing:.05em">Made by <span style="color:var(--text2)">Nouqty</span></p>
   </div>
-  <p style="text-align:center;margin-top:2rem;font-size:11px;font-weight:700;color:#888;letter-spacing:.05em;">Made by <span style=color:#444>Nouqty</span></p>
 </div>
 {% endblock %}

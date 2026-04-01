@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Revyo — Reservas online para tu negocio{% endblock %}
+{% block title %}Revyo — Sistema de reservas para tu negocio{% endblock %}
 {% block body_class %}landing-body{% endblock %}
 
 {% block content %}
@@ -16,41 +16,39 @@
   </div>
 </nav>
 
-<!-- HERO FULL SCREEN -->
+<!-- HERO -->
 <section class="hero">
   <div class="hero__bg">
     <div class="hero__orb hero__orb--1"></div>
     <div class="hero__orb hero__orb--2"></div>
-    <div class="hero__grid"></div>
+    <div class="hero__lines"></div>
   </div>
-
   <div class="hero__inner">
     <div class="hero__left">
-      <div class="hero__badge">✦ 7 días gratis, sin tarjeta</div>
+      <div class="hero__eyebrow">Sistema de reservas online</div>
       <h1 class="hero__title">
         Tu negocio merece<br>
         <em>reservas sin caos</em>
       </h1>
       <p class="hero__sub">
-        Página de reservas profesional y personalizable para barberías,
-        gimnasios, spas y cualquier negocio que trabaje con citas.
+        Página de reservas profesional y personalizable para barberías, gimnasios, spas y más. 
+        Gestiona citas, colaboradores y clientes desde un solo panel.
       </p>
       <div class="hero__ctas">
-        <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--lg">Crear mi página gratis →</a>
-        <a href="/b/demo" class="btn btn--ghost btn--lg">Ver demo</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--lg">Crear mi página gratis</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn--ghost btn--lg">Iniciar sesión</a>
       </div>
       <div class="hero__proof">
-        <span>✓ Sin conocimientos técnicos</span>
-        <span>✓ Tu logo y colores</span>
-        <span>✓ Panel incluido</span>
+        <span>Sin tarjeta de crédito</span>
+        <span>7 días de prueba</span>
+        <span>Lista en 5 minutos</span>
       </div>
     </div>
-
     <div class="hero__right">
       <div class="mockup-card">
         <div class="mockup-card__header">
           <div class="mockup-dots"><span></span><span></span><span></span></div>
-          <span class="mockup-card__url">revyo.cl/b/tu-negocio</span>
+          <span class="mockup-card__url">revyo.app/b/tu-negocio</span>
         </div>
         <div class="mockup-card__body">
           <div class="mockup-biz">
@@ -61,27 +59,23 @@
             </div>
           </div>
           <div class="mockup-services">
-            <div class="mockup-svc mockup-svc--active">Corte + Barba · 45min · $8.000</div>
-            <div class="mockup-svc">Solo Corte · 30min · $5.000</div>
-            <div class="mockup-svc">Afeitado · 20min · $4.000</div>
+            <div class="mockup-svc mockup-svc--active">Corte + Barba · 45 min · $8.000</div>
+            <div class="mockup-svc">Solo Corte · 30 min · $5.000</div>
           </div>
-          <div class="mockup-cal__title">Mar 15 Abril</div>
-          <div class="mockup-slots">
-            <span class="slot slot--taken">10:00</span>
-            <span class="slot slot--taken">10:30</span>
-            <span class="slot slot--free">11:00</span>
-            <span class="slot slot--selected">11:30</span>
-            <span class="slot slot--free">12:00</span>
-            <span class="slot slot--taken">12:30</span>
+          <div>
+            <div class="mockup-cal__title">Mar 15 Abril</div>
+            <div class="mockup-slots">
+              <span class="slot slot--taken">10:00</span>
+              <span class="slot slot--free">10:30</span>
+              <span class="slot slot--selected">11:00</span>
+              <span class="slot slot--free">11:30</span>
+              <span class="slot slot--taken">12:00</span>
+            </div>
           </div>
           <button class="mockup-btn">Confirmar reserva</button>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="hero__scroll">
-    <span>↓</span>
   </div>
 </section>
 
@@ -89,12 +83,12 @@
 <section class="proof-bar">
   <p>Pensado para</p>
   <div class="proof-bar__items">
-    <span>✂ Barberías</span>
-    <span>💪 Gimnasios</span>
-    <span>💆 Spas</span>
-    <span>💅 Salones</span>
-    <span>🐾 Veterinarias</span>
-    <span>🦷 Dentistas</span>
+    <span>Barberías</span>
+    <span>Gimnasios</span>
+    <span>Spas & Masajes</span>
+    <span>Salones de belleza</span>
+    <span>Dentistas</span>
+    <span>Veterinarias</span>
   </div>
 </section>
 
@@ -103,45 +97,46 @@
   <div class="section-container">
     <div class="section-header">
       <div class="section-tag">Características</div>
-      <h2>Todo lo que necesitas para profesionalizar tu negocio</h2>
+      <h2>Todo lo que necesitas en un solo lugar</h2>
+      <p>Sin complicaciones. Sin técnicos. Sin pérdida de tiempo.</p>
     </div>
     <div class="features-grid">
-      <div class="feature-card feature-card--main">
+      <div class="feature-card feature-card--wide">
         <div class="feature-card__icon">🎨</div>
-        <h3>Tu marca, tu identidad</h3>
-        <p>Personaliza colores, fuentes y sube tu logo. Tu página de reservas se verá exactamente como imaginas tu negocio.</p>
+        <h3>100% personalizable</h3>
+        <p>Colores, fuentes, logo, estilo de botones y modo oscuro o claro. Tu página se verá exactamente como imaginas tu marca.</p>
         <div class="color-dots">
+          <span style="background:#7c3aed"></span>
           <span style="background:#e94560"></span>
-          <span style="background:#0f3460"></span>
           <span style="background:#f0c419"></span>
           <span style="background:#10b981"></span>
-          <span style="background:#6366f1"></span>
+          <span style="background:#3b82f6"></span>
         </div>
       </div>
       <div class="feature-card">
         <div class="feature-card__icon">📅</div>
         <h3>Reservas en tiempo real</h3>
-        <p>Los clientes ven disponibilidad actualizada al instante. Sin cruces de citas, sin llamadas.</p>
+        <p>Disponibilidad actualizada al instante. Sin cruces de citas, sin llamadas innecesarias.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-card__icon">🔔</div>
-        <h3>Panel de control</h3>
-        <p>Ve, confirma o cancela citas desde tu dashboard. Filtra por fecha y estado.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">⚡</div>
-        <h3>Lista en 5 minutos</h3>
-        <p>Regístrate, agrega servicios, define horarios y comparte tu link. Sin técnicos.</p>
+        <div class="feature-card__icon">👥</div>
+        <h3>Gestión de colaboradores</h3>
+        <p>Tus clientes eligen con quién atenderse. Cada colaborador recibe notificación por email.</p>
       </div>
       <div class="feature-card">
         <div class="feature-card__icon">✉️</div>
         <h3>Emails automáticos</h3>
-        <p>El cliente recibe confirmación por email con opción de cancelar su cita con un clic.</p>
+        <p>Confirmación y recordatorio 1 hora antes. El cliente también puede cancelar desde el email.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">⚡</div>
+        <h3>Lista en 5 minutos</h3>
+        <p>Regístrate, personaliza y comparte tu link. Sin instalaciones ni conocimientos técnicos.</p>
       </div>
       <div class="feature-card">
         <div class="feature-card__icon">🌙</div>
-        <h3>Modo oscuro / claro</h3>
-        <p>Tus clientes pueden elegir el modo que prefieren. Funciona perfecto en móvil.</p>
+        <h3>Modo oscuro incluido</h3>
+        <p>Tus clientes pueden cambiar entre modo claro y oscuro según su preferencia.</p>
       </div>
     </div>
   </div>
@@ -151,7 +146,7 @@
 <section class="how-it-works">
   <div class="section-container">
     <div class="section-header">
-      <div class="section-tag">¿Cómo funciona?</div>
+      <div class="section-tag">Cómo funciona</div>
       <h2>De cero a recibir reservas en 3 pasos</h2>
     </div>
     <div class="steps">
@@ -170,7 +165,7 @@
       <div class="step">
         <div class="step__num">03</div>
         <h3>Comparte y recibe citas</h3>
-        <p>Comparte tu link en redes y empieza a recibir reservas.</p>
+        <p>Comparte tu link y empieza a recibir reservas al instante.</p>
       </div>
     </div>
   </div>
@@ -180,37 +175,31 @@
 <section class="pricing" id="pricing">
   <div class="section-container">
     <div class="section-header">
-      <div class="section-tag">Precios</div>
-      <h2>Simple y transparente</h2>
-      <p>Sin comisiones por reserva. Pago mensual fijo.</p>
+      <div class="section-tag">Precio</div>
+      <h2>Simple y sin sorpresas</h2>
+      <p>Sin comisiones por reserva. Un precio fijo mensual.</p>
     </div>
     <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="pricing-card__tag">Básico</div>
-        <div class="pricing-card__price"><span class="pricing-card__currency">$</span>9.900<span class="pricing-card__period">/mes</span></div>
-        <ul class="pricing-card__features">
-          <li>✓ Página personalizada</li>
-          <li>✓ Hasta 5 servicios</li>
-          <li>✓ Reservas ilimitadas</li>
-          <li>✓ Panel de control</li>
-          <li>✓ Email de confirmación</li>
-          <li class="disabled">✗ Múltiples profesionales</li>
-        </ul>
-        <a href="{{ url_for('auth.register') }}" class="btn btn--outline btn--full">Empezar prueba gratis</a>
-      </div>
       <div class="pricing-card pricing-card--featured">
-        <div class="pricing-card__badge">Más popular</div>
-        <div class="pricing-card__tag">Pro</div>
-        <div class="pricing-card__price"><span class="pricing-card__currency">$</span>19.900<span class="pricing-card__period">/mes</span></div>
+        <div class="pricing-card__badge">Todo incluido</div>
+        <div class="pricing-card__tag">Plan único</div>
+        <div class="pricing-card__price">
+          <span class="pricing-card__currency">$</span>9.990
+          <span class="pricing-card__period">/mes</span>
+        </div>
         <ul class="pricing-card__features">
-          <li>✓ Todo lo del plan Básico</li>
-          <li>✓ Servicios ilimitados</li>
-          <li>✓ Múltiples profesionales</li>
-          <li>✓ Estadísticas avanzadas</li>
-          <li>✓ Modo oscuro/claro</li>
-          <li>✓ Soporte prioritario</li>
+          <li>Página de reservas personalizada</li>
+          <li>Servicios y horarios ilimitados</li>
+          <li>Gestión de colaboradores</li>
+          <li>Emails automáticos de confirmación</li>
+          <li>Recordatorio 1 hora antes</li>
+          <li>Modo oscuro para tus clientes</li>
+          <li>Panel de administración completo</li>
+          <li>Link personalizado para tu negocio</li>
         </ul>
-        <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--full">Empezar prueba gratis</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--full btn--lg">
+          Empezar prueba gratis →
+        </a>
       </div>
     </div>
     <p class="pricing-note">7 días de prueba gratis · Cancela cuando quieras · Pago seguro con MercadoPago</p>
@@ -221,9 +210,9 @@
 <section class="cta-final">
   <div class="section-container">
     <h2>¿Listo para dejar de perder reservas?</h2>
-    <p>Únete a negocios que ya usan Revyo para gestionar sus citas.</p>
+    <p>Crea tu página en minutos y empieza a recibir citas hoy.</p>
     <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--lg">Crear mi página gratis →</a>
-    <p class="cta-final__note">Sin tarjeta de crédito · 7 días de prueba</p>
+    <p class="cta-final__note">Sin tarjeta de crédito · 7 días de prueba gratuita</p>
   </div>
 </section>
 
