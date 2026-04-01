@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Revyo — Sistema de reservas para tu negocio{% endblock %}
+{% block title %}Revyo — Sistema de reservas online para tu negocio{% endblock %}
+{% block meta_desc %}Crea tu página de reservas en minutos. Gestiona citas, colaboradores y horarios desde un panel profesional. Ideal para barberías, gimnasios, spas y más.{% endblock %}
 {% block body_class %}landing-body{% endblock %}
 
 {% block content %}
@@ -9,6 +10,7 @@
     <div class="nav__links">
       <a href="#features">Características</a>
       <a href="#pricing">Precios</a>
+      <a href="/b/barberia-nova">Ver demo</a>
       <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
       <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--sm">Empezar gratis</a>
     </div>
@@ -36,7 +38,7 @@
       </p>
       <div class="hero__ctas">
         <a href="{{ url_for('auth.register') }}" class="btn btn--accent btn--lg">Crear mi página gratis</a>
-        <a href="{{ url_for('auth.login') }}" class="btn btn--ghost btn--lg">Iniciar sesión</a>
+        <a href="/b/barberia-nova" class="btn btn--ghost btn--lg">Ver demo →</a>
       </div>
       <div class="hero__proof">
         <span>Sin tarjeta de crédito</span>
