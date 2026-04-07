@@ -3,39 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Revyo — Sistema de reservas online{% endblock %}</title>
-  <meta name="description" content="{% block meta_desc %}Crea tu página de reservas online en minutos. Gestiona citas, colaboradores y clientes desde un panel profesional. Para barberías, gimnasios, spas y más.{% endblock %}">
-  <meta name="keywords" content="reservas online, sistema de citas, barberia, gimnasio, spa, agenda online">
-  <meta name="author" content="Nouqty">
-  <!-- Open Graph -->
-  <meta property="og:title" content="{% block og_title %}Revyo — Reservas online para tu negocio{% endblock %}">
-  <meta property="og:description" content="Página de reservas profesional y personalizable. Lista en 5 minutos.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="{{ url_for('static', filename='img/og-image.png', _external=True) }}">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Revyo — Reservas online">
-  <meta name="twitter:description" content="Gestiona tus citas online. Personalizable, rápido y con emails automáticos.">
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
-  <link rel="alternate icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+  <title>{% block title %}Revyo{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}Sistema de reservas online para tu negocio.{% endblock %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <div class="flash-container" id="flash-container">
-      {% for category, message in messages %}
-        <div class="flash flash--{{ category }}">
-          <span>{{ message }}</span>
-          <button onclick="this.parentElement.remove()" class="flash__close">×</button>
-        </div>
-      {% endfor %}
+  <div class="flash-container" id="flash-container">
+    {% for category, message in messages %}
+    <div class="flash flash--{{ category }}">
+      <span>{{ message }}</span>
+      <button onclick="this.parentElement.remove()" class="flash__close">&times;</button>
     </div>
+    {% endfor %}
+  </div>
   {% endif %}
 {% endwith %}
 
@@ -47,7 +34,6 @@
   setTimeout(() => {
     document.querySelectorAll('.flash').forEach(el => {
       el.style.opacity = '0';
-      el.style.transform = 'translateX(100%)';
       setTimeout(() => el.remove(), 300);
     });
   }, 4000);

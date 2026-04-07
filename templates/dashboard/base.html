@@ -1,96 +1,85 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Dashboard — Revyo{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
 </head>
 <body class="dashboard-body">
-<div class="dash-layout" id="dash-layout" data-theme="light">
+<div class="dash-layout">
 
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__header">
-      <a href="{{ url_for('dashboard.index') }}" class="sidebar__logo">Rev<em>yo</em></a>
-      <button class="theme-btn" id="theme-btn" title="Modo oscuro/claro">
-        <span class="dth-moon">🌙</span>
-        <span class="dth-sun" style="display:none">☀️</span>
-      </button>
+      <a href="{{ url_for('dashboard.index') }}" class="sidebar__logo">
+        <span>&#9670;</span> Revyo
+      </a>
     </div>
 
     {% if current_user.business %}
     <div class="sidebar__biz">
       {% if current_user.business.logo_url %}
-      <img src="{{ current_user.business.logo_url }}" alt="logo" class="sidebar__biz-img">
+      <img src="{{ current_user.business.logo_url }}" alt="logo" class="sidebar__biz-logo">
       {% else %}
-      <div class="sidebar__biz-logo">{{ current_user.business.name[0]|upper }}</div>
+      <div class="sidebar__biz-avatar">{{ current_user.business.name[0]|upper }}</div>
       {% endif %}
       <div>
         <div class="sidebar__biz-name">{{ current_user.business.name }}</div>
-        <div class="sidebar__biz-status">
-          <span class="status-dot {% if not current_user.business.is_active %}status-dot--off{% endif %}"></span>
-          <span style="color:{% if current_user.business.is_active %}#10b981{% else %}#ef4444{% endif %};font-size:.68rem">
-            {% if current_user.business.is_active %}Activo{% else %}Inactivo{% endif %}
-          </span>
-        </div>
+        {% if current_user.business.is_active %}
+        <div class="status--active">Activo</div>
+        {% else %}
+        <div class="status--inactive">Inactivo</div>
+        {% endif %}
       </div>
     </div>
     {% endif %}
 
     <nav class="sidebar__nav">
-      <span class="sidebar__section">Panel</span>
       <a href="{{ url_for('dashboard.index') }}" class="sidebar__link {% if request.endpoint == 'dashboard.index' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">■</span> Panel principal
+        Panel
       </a>
       <a href="{{ url_for('dashboard.appointments') }}" class="sidebar__link {% if request.endpoint == 'dashboard.appointments' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Reservas
+        Reservas
       </a>
-
-      <span class="sidebar__section">Negocio</span>
       <a href="{{ url_for('dashboard.services') }}" class="sidebar__link {% if request.endpoint == 'dashboard.services' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Servicios
+        Servicios
       </a>
       <a href="{{ url_for('dashboard.staff') }}" class="sidebar__link {% if request.endpoint == 'dashboard.staff' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Colaboradores
+        Colaboradores
       </a>
       <a href="{{ url_for('dashboard.hours') }}" class="sidebar__link {% if request.endpoint == 'dashboard.hours' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Horarios
+        Horarios
       </a>
-
-      <span class="sidebar__section">Personalización</span>
+      <div class="sidebar__divider"></div>
       <a href="{{ url_for('dashboard.customize') }}" class="sidebar__link {% if request.endpoint == 'dashboard.customize' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Página del cliente
+        Pagina del cliente
       </a>
       <a href="{{ url_for('dashboard.email_settings') }}" class="sidebar__link {% if request.endpoint == 'dashboard.email_settings' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Emails
+        Email
       </a>
-
       <div class="sidebar__divider"></div>
       {% if current_user.business %}
-      <a href="{{ url_for('booking.page', slug=current_user.business.slug) }}" target="_blank" class="sidebar__link sidebar__link--ext">
-        <span class="sidebar__icon">→</span> Ver mi página
+      <a href="{{ url_for('booking.page', slug=current_user.business.slug) }}" target="_blank" class="sidebar__link sidebar__link--external">
+        Ver mi pagina
       </a>
       {% endif %}
-      <a href="{{ url_for('payment.plans') }}" class="sidebar__link {% if request.endpoint == 'payment.plans' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">·</span> Suscripción
+      <a href="{{ url_for('payment.plans') }}" class="sidebar__link">
+        Suscripcion
       </a>
-      <a href="{{ url_for('auth.logout') }}" class="sidebar__link sidebar__link--danger">
-        <span class="sidebar__icon">←</span> Cerrar sesión
+      <a href="{{ url_for('auth.logout') }}" class="sidebar__link sidebar__link--logout">
+        Cerrar sesion
       </a>
     </nav>
-
-    <div class="sidebar__footer">Made by <strong>Nouqty</strong></div>
+    <div style="padding:.75rem 1.5rem 1.25rem;font-size:.7rem;color:rgba(255,255,255,.3)">Made by <strong style="color:rgba(255,255,255,.5)">Nouqty</strong></div>
   </aside>
 
-  <!-- Main -->
   <main class="dash-main">
     <header class="dash-topbar">
-      <button class="dash-topbar__menu" onclick="document.getElementById('sidebar').classList.toggle('sidebar--open')">☰</button>
-      <span class="dash-topbar__title">{% block breadcrumb %}Panel{% endblock %}</span>
+      <button class="dash-topbar__menu" onclick="document.getElementById('sidebar').classList.toggle('sidebar--open')">&#9776;</button>
+      <span class="dash-topbar__breadcrumb">{% block breadcrumb %}Panel{% endblock %}</span>
       <span class="dash-topbar__user">{{ current_user.name }}</span>
     </header>
 
@@ -108,51 +97,17 @@
   </main>
 </div>
 
-<div class="flash-container" id="flash-container"></div>
-
 <script>
-// Theme
-const layout = document.getElementById('dash-layout');
-const btn = document.getElementById('theme-btn');
-const sun = btn.querySelector('.dth-sun');
-const moon = btn.querySelector('.dth-moon');
-const saved = localStorage.getItem('revyo-dash-theme') || 'light';
-layout.setAttribute('data-theme', saved);
-if(saved==='dark'){sun.style.display='inline';moon.style.display='none'}
-btn.addEventListener('click',()=>{
-  const next = layout.getAttribute('data-theme')==='light'?'dark':'light';
-  layout.setAttribute('data-theme',next);
-  localStorage.setItem('revyo-dash-theme',next);
-  if(next==='dark'){sun.style.display='inline';moon.style.display='none'}
-  else{sun.style.display='none';moon.style.display='inline'}
-});
-
-// Copy link
-function copyLink(text){
-  navigator.clipboard.writeText(text).then(()=>{
-    const c = document.getElementById('flash-container');
-    const el = document.createElement('div');
-    el.className = 'flash flash--success';
-    el.innerHTML = '<span>✓ Link copiado</span>';
-    c.appendChild(el);
-    setTimeout(()=>el.remove(),2500);
-  });
+function toggleStatus(apptId, newStatus) {
+  fetch('/dashboard/appointments/' + apptId + '/status', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status: newStatus})
+  }).then(r => r.json()).then(d => { if(d.success) location.reload(); });
 }
-
-// Status toggle
-function toggleStatus(apptId, newStatus){
-  fetch(`/dashboard/appointments/${apptId}/status`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({status:newStatus})
-  }).then(r=>r.json()).then(d=>{
-    if(d.success)location.reload();
-  });
-}
-
-// Close sidebar on outside click (mobile)
-document.addEventListener('click',e=>{
+document.addEventListener('click', e => {
   const sb = document.getElementById('sidebar');
-  if(window.innerWidth<768 && sb.classList.contains('sidebar--open') && !sb.contains(e.target) && !e.target.closest('.dash-topbar__menu')){
+  if (window.innerWidth < 768 && sb && sb.classList.contains('sidebar--open') && !sb.contains(e.target)) {
     sb.classList.remove('sidebar--open');
   }
 });

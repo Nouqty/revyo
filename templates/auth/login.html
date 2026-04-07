@@ -2,11 +2,15 @@
 {% block title %}Iniciar sesión — Revyo{% endblock %}
 {% block body_class %}auth-body{% endblock %}
 {% block content %}
-<div class="auth-wrap">
-  <div class="auth-panel">
-    <a href="/" class="auth-logo">Rev<em>yo</em></a>
-    <h1>Bienvenido de vuelta</h1>
-    <p class="auth-sub">Inicia sesión para acceder a tu panel de administración.</p>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span style="color:var(--accent)">&#9670;</span> Revyo
+    </div>
+    <div class="auth-card__header">
+      <h1>Bienvenido de vuelta</h1>
+      <p>Inicia sesión para gestionar tu negocio</p>
+    </div>
     <form class="auth-form" method="POST" action="{{ url_for('auth.login') }}">
       <div class="form-group">
         <label>Correo electrónico</label>
@@ -16,36 +20,29 @@
         <label>Contraseña</label>
         <input type="password" name="password" placeholder="••••••••" required>
       </div>
-      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:.5rem">Iniciar sesión</button>
+      <button type="submit" class="btn btn--accent btn--full btn--lg" style="margin-top:.5rem">
+        Iniciar sesión
+      </button>
     </form>
-    <div class="auth-footer">
+    <div class="auth-card__footer">
       ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate gratis</a>
     </div>
   </div>
   <div class="auth-side">
     <div class="auth-side__content">
-      <h2>Gestiona tu negocio desde cualquier lugar</h2>
-      <div class="auth-feats">
-        <div class="auth-feat">
-          <div class="auth-feat__icon">📅</div>
-          <div>
-            <strong>Reservas en tiempo real</strong>
-            <p>Ve todas tus citas actualizadas al instante, sin refrescar la página.</p>
-          </div>
+      <h2>Gestiona tus reservas desde cualquier lugar</h2>
+      <div class="auth-features">
+        <div class="auth-feature">
+          <span>&#9632;</span>
+          <p>Página personalizable con tus colores y logo</p>
         </div>
-        <div class="auth-feat">
-          <div class="auth-feat__icon">✉️</div>
-          <div>
-            <strong>Emails automáticos</strong>
-            <p>Tus clientes reciben confirmación y recordatorio sin que hagas nada.</p>
-          </div>
+        <div class="auth-feature">
+          <span>&#9632;</span>
+          <p>Emails automáticos de confirmación y recordatorio</p>
         </div>
-        <div class="auth-feat">
-          <div class="auth-feat__icon">🎨</div>
-          <div>
-            <strong>Tu marca, tu estilo</strong>
-            <p>Personaliza colores, fuente, logo y modo oscuro a tu gusto.</p>
-          </div>
+        <div class="auth-feature">
+          <span>&#9632;</span>
+          <p>Gestión de colaboradores y horarios</p>
         </div>
       </div>
     </div>

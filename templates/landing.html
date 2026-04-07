@@ -1,216 +1,113 @@
-{% extends 'base.html' %}
-{% block title %}Revyo — Sistema de reservas online para tu negocio{% endblock %}
-{% block meta_desc %}Crea tu página de reservas en minutos. Gestiona citas, colaboradores y horarios desde un panel profesional. Para barberías, gimnasios, spas y más.{% endblock %}
-{% block body_class %}landing-body{% endblock %}
-{% block content %}
+# ReservaApp ??️
+Sistema SaaS de reservas para barberías, gimnasios, spas y más.
 
-<nav class="nav">
-  <div class="nav__inner">
-    <a href="/" class="nav__logo">Rev<em>yo</em></a>
-    <div class="nav__links" id="nav-links">
-      <a href="#features">Características</a>
-      <a href="#como-funciona">Cómo funciona</a>
-      <a href="#precio">Precio</a>
-      <a href="/b/barberia-nova">Ver demo</a>
-      <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Empezar gratis</a>
-    </div>
-    <button class="nav__mob" onclick="document.getElementById('nav-links').classList.toggle('nav__links--open')">☰</button>
-  </div>
-</nav>
+## Stack
+- **Backend**: Flask + SQLAlchemy
+- **Base de datos**: PostgreSQL (SQLite para desarrollo)
+- **Pagos**: MercadoPago
+- **Frontend**: HTML/CSS/JS puro (sin frameworks)
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero__orbs">
-    <div class="hero__orb hero__orb1"></div>
-    <div class="hero__orb hero__orb2"></div>
-    <div class="hero__grid"></div>
-  </div>
-  <div class="hero__inner">
-    <div class="hero__content">
-      <div class="hero__tag">Sistema de reservas online</div>
-      <h1 class="hero__title">Tu negocio merece<br><em>reservas sin caos</em></h1>
-      <p class="hero__sub">Página de reservas profesional y personalizable. Gestiona citas, colaboradores y clientes desde un solo panel. Tus clientes reservan solos mientras tú trabajas.</p>
-      <div class="hero__ctas">
-        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Crear mi página gratis →</a>
-        <a href="/b/barberia-nova" class="btn btn-ghost btn-lg">Ver demo</a>
-      </div>
-      <div class="hero__proof">
-        <div class="hero__proof-item">Sin tarjeta de crédito</div>
-        <div class="hero__proof-item">7 días de prueba</div>
-        <div class="hero__proof-item">Lista en 5 minutos</div>
-      </div>
-    </div>
-    <div class="hero__right">
-      <div class="mockup">
-        <div class="mockup__bar">
-          <div class="mockup__dots"><span></span><span></span><span></span></div>
-          <span class="mockup__url">revyo.app/b/barberia-nova</span>
-        </div>
-        <div class="mockup__body">
-          <div class="m-biz">
-            <div class="m-biz__logo">✂</div>
-            <div>
-              <div class="m-biz__name">Barbería Nova</div>
-              <div class="m-biz__tag">Elige tu servicio</div>
-            </div>
-          </div>
-          <div class="m-svc active">
-            <span>Corte + Barba</span>
-            <span class="m-svc__price">$12.000</span>
-          </div>
-          <div class="m-svc">
-            <span>Solo Corte</span>
-            <span class="m-svc__price">$8.000</span>
-          </div>
-          <div class="m-cal-label">Martes 15 de Abril</div>
-          <div class="m-slots">
-            <span class="m-slot taken">09:00</span>
-            <span class="m-slot">10:00</span>
-            <span class="m-slot sel">11:00</span>
-            <span class="m-slot">11:30</span>
-            <span class="m-slot taken">12:00</span>
-          </div>
-          <button class="m-btn">Confirmar reserva</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+## Estructura
+```
+reservas-saas/
+├── app.py                  # Entrada de la app
+├── config.py               # Configuración por entorno
+├── requirements.txt
+├── .env.example
+├── models/
+│   └── models.py           # Owner, Business, Service, Appointment...
+├── routes/
+│   ├── main.py             # Landing page
+│   ├── auth.py             # Registro / Login
+│   ├── dashboard.py        # Panel del dueño
+│   ├── booking.py          # Página pública de reservas
+│   └── payment.py          # MercadoPago
+├── templates/
+│   ├── landing.html        # Página de ventas
+│   ├── auth/               # Login, Register
+│   ├── dashboard/          # Panel, Servicios, Horarios, Personalizar
+│   ├── booking/            # Página pública + Confirmación
+│   └── payment/            # Planes
+└── static/
+    ├── css/
+    │   ├── styles.css      # Landing + Auth + Dashboard
+    │   └── booking.css     # Página pública (con CSS vars dinámicos)
+    └── js/main.js
+```
 
-<!-- PROOF -->
-<section class="proof-bar">
-  <div class="proof-bar__inner">
-    <span class="proof-bar__label">Ideal para</span>
-    <div class="proof-bar__items">
-      <span>Barberías</span><span>Gimnasios</span><span>Spas</span>
-      <span>Salones de belleza</span><span>Dentistas</span><span>Clínicas</span>
-    </div>
-  </div>
-</section>
+## Setup rápido
 
-<!-- FEATURES -->
-<section class="section section--alt" id="features">
-  <div class="section__inner">
-    <div class="section__head">
-      <div class="section__tag">Características</div>
-      <h2 class="section__title">Todo lo que necesitas, nada que no</h2>
-      <p class="section__sub">Sin complicaciones. Sin técnicos. Sin instalaciones.</p>
-    </div>
-    <div class="features-grid">
-      <div class="feat-card feat-card--wide">
-        <div class="feat-card__icon">🎨</div>
-        <h3>100% personalizable</h3>
-        <p>Colores, fuentes, logo, estilo de botones y modo oscuro o claro. Tu página se verá exactamente como imaginas tu marca.</p>
-        <div class="color-swatches">
-          <span style="background:#7c3aed"></span>
-          <span style="background:#e94560"></span>
-          <span style="background:#10b981"></span>
-          <span style="background:#f59e0b"></span>
-          <span style="background:#3b82f6"></span>
-          <span style="background:#ec4899"></span>
-        </div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-card__icon">📅</div>
-        <h3>Reservas en tiempo real</h3>
-        <p>Disponibilidad actualizada al instante. Sin cruces de citas ni llamadas innecesarias.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-card__icon">👥</div>
-        <h3>Gestión de colaboradores</h3>
-        <p>Tus clientes eligen con quién atenderse. Cada uno recibe su notificación automática.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-card__icon">✉️</div>
-        <h3>Emails automáticos</h3>
-        <p>Confirmación y recordatorio 1 hora antes. El cliente puede cancelar desde el propio correo.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-card__icon">⚡</div>
-        <h3>Lista en 5 minutos</h3>
-        <p>Regístrate, personaliza y comparte tu link. Sin instalaciones ni conocimientos técnicos.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-card__icon">🌙</div>
-        <h3>Modo oscuro incluido</h3>
-        <p>Tus clientes pueden cambiar entre modo claro y oscuro según su preferencia.</p>
-      </div>
-    </div>
-  </div>
-</section>
+### 1. Instalar dependencias
+```bash
+pip install -r requirements.txt
+```
 
-<!-- HOW IT WORKS -->
-<section class="section" id="como-funciona">
-  <div class="section__inner">
-    <div class="section__head">
-      <div class="section__tag">Cómo funciona</div>
-      <h2 class="section__title">De cero a recibir reservas en 3 pasos</h2>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step__num">01</div>
-        <h3>Crea tu cuenta</h3>
-        <p>Regístrate gratis. 7 días de prueba sin tarjeta de crédito. Sin compromiso.</p>
-      </div>
-      <div class="step">
-        <div class="step__num">02</div>
-        <h3>Personaliza tu página</h3>
-        <p>Sube tu logo, elige colores, agrega servicios, horarios y colaboradores.</p>
-      </div>
-      <div class="step">
-        <div class="step__num">03</div>
-        <h3>Comparte y recibe citas</h3>
-        <p>Comparte tu link único y empieza a recibir reservas al instante.</p>
-      </div>
-    </div>
-  </div>
-</section>
+### 2. Configurar variables de entorno
+```bash
+cp .env.example .env
+# Edita .env con tus credenciales
+```
 
-<!-- PRICING -->
-<section class="section section--alt" id="precio">
-  <div class="section__inner">
-    <div class="section__head">
-      <div class="section__tag">Precio</div>
-      <h2 class="section__title">Simple y sin sorpresas</h2>
-      <p class="section__sub">Sin comisiones por reserva. Un precio fijo mensual.</p>
-    </div>
-    <div class="pricing-card">
-      <div class="pricing-card__badge">Todo incluido · Sin comisiones</div>
-      <div class="pricing-card__price"><sup>$</sup>9.990<span class="pricing-card__period">/mes</span></div>
-      <ul class="pricing-card__features">
-        <li>Página de reservas personalizada</li>
-        <li>Servicios y horarios ilimitados</li>
-        <li>Gestión de colaboradores</li>
-        <li>Emails automáticos de confirmación</li>
-        <li>Recordatorio 1 hora antes</li>
-        <li>Modo oscuro para tus clientes</li>
-        <li>Panel de administración completo</li>
-        <li>Link personalizado para tu negocio</li>
-      </ul>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg btn-full">Empezar prueba gratis →</a>
-    </div>
-    <p class="pricing-note">7 días gratis · Cancela cuando quieras · Pago mensual en CLP</p>
-  </div>
-</section>
+### 3. Obtener credenciales de MercadoPago
+1. Entra a https://www.mercadopago.cl/developers
+2. Crea una aplicación
+3. Copia tu `Access Token` y `Public Key` al `.env`
+4. Configura el webhook URL: `https://tudominio.com/webhook/mercadopago`
 
-<!-- CTA FINAL -->
-<section class="cta-final">
-  <h2>¿Listo para dejar de perder reservas?</h2>
-  <p>Crea tu página en minutos y empieza a recibir citas hoy.</p>
-  <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Crear mi página gratis →</a>
-  <p class="cta-final__note">Sin tarjeta de crédito · 7 días de prueba gratuita</p>
-</section>
+### 4. Iniciar en desarrollo
+```bash
+python app.py
+```
 
-<footer class="footer">
-  <div class="footer__inner">
-    <div class="footer__logo">Revyo</div>
-    <div class="footer__links">
-      <a href="#">Términos</a>
-      <a href="#">Privacidad</a>
-      <a href="#">Contacto</a>
-    </div>
-    <p class="footer__copy">© 2025 Revyo · Made by <strong>Nouqty</strong></p>
-  </div>
-</footer>
-{% endblock %}
+### 5. Deploy en producción (Railway / Render)
+```bash
+# Railway
+railway login
+railway new
+railway up
+
+# Variables de entorno en Railway:
+# DATABASE_URL, SECRET_KEY, MP_ACCESS_TOKEN, MP_PUBLIC_KEY, APP_URL
+```
+
+## Rutas principales
+| Ruta | Descripción |
+|------|-------------|
+| `/` | Landing page (ventas) |
+| `/register` | Registro de dueño |
+| `/login` | Login |
+| `/dashboard` | Panel del dueño |
+| `/dashboard/customize` | Personalizar página |
+| `/dashboard/services` | Gestionar servicios |
+| `/dashboard/hours` | Horarios de atención |
+| `/dashboard/appointments` | Ver reservas |
+| `/planes` | Planes y suscripción |
+| `/b/<slug>` | Página pública del negocio |
+| `/webhook/mercadopago` | IPN de MercadoPago |
+
+## Modelos de datos
+- **Owner** — dueño del negocio (cliente del SaaS)
+- **Subscription** — suscripción mensual (MercadoPago)
+- **Business** — negocio con personalización visual
+- **Service** — servicios que ofrece el negocio
+- **WorkingHours** — horarios de atención por día
+- **Appointment** — reservas de los clientes
+
+## Personalización por negocio
+Cada negocio puede configurar:
+- Nombre, descripción, categoría
+- Logo (upload)
+- Colores: primario, secundario, acento, texto
+- Fuente tipográfica (9 Google Fonts)
+- Horarios de atención
+- Servicios con precio y duración
+- Tiempo mínimo de anticipación
+- Máximo de días por adelantado
+
+## Próximas features
+- [ ] Notificaciones por email (Flask-Mail)
+- [ ] Notificaciones por WhatsApp (Twilio)
+- [ ] Múltiples profesionales por negocio
+- [ ] Estadísticas y reportes
+- [ ] Dominio personalizado por negocio
+- [ ] App móvil (PWA)
