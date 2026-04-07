@@ -44,39 +44,39 @@
     <nav class="sidebar__nav">
       <span class="sidebar__section">Panel</span>
       <a href="{{ url_for('dashboard.index') }}" class="sidebar__link {% if request.endpoint == 'dashboard.index' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">▦</span> Panel principal
+        <span class="sidebar__icon">■</span> Panel principal
       </a>
       <a href="{{ url_for('dashboard.appointments') }}" class="sidebar__link {% if request.endpoint == 'dashboard.appointments' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">📅</span> Reservas
+        <span class="sidebar__icon">·</span> Reservas
       </a>
 
       <span class="sidebar__section">Negocio</span>
       <a href="{{ url_for('dashboard.services') }}" class="sidebar__link {% if request.endpoint == 'dashboard.services' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">⚡</span> Servicios
+        <span class="sidebar__icon">·</span> Servicios
       </a>
       <a href="{{ url_for('dashboard.staff') }}" class="sidebar__link {% if request.endpoint == 'dashboard.staff' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">👥</span> Colaboradores
+        <span class="sidebar__icon">·</span> Colaboradores
       </a>
       <a href="{{ url_for('dashboard.hours') }}" class="sidebar__link {% if request.endpoint == 'dashboard.hours' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">🕐</span> Horarios
+        <span class="sidebar__icon">·</span> Horarios
       </a>
 
       <span class="sidebar__section">Personalización</span>
       <a href="{{ url_for('dashboard.customize') }}" class="sidebar__link {% if request.endpoint == 'dashboard.customize' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">🎨</span> Página del cliente
+        <span class="sidebar__icon">·</span> Página del cliente
       </a>
       <a href="{{ url_for('dashboard.email_settings') }}" class="sidebar__link {% if request.endpoint == 'dashboard.email_settings' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">✉️</span> Emails
+        <span class="sidebar__icon">·</span> Emails
       </a>
 
       <div class="sidebar__divider"></div>
       {% if current_user.business %}
       <a href="{{ url_for('booking.page', slug=current_user.business.slug) }}" target="_blank" class="sidebar__link sidebar__link--ext">
-        <span class="sidebar__icon">↗</span> Ver mi página
+        <span class="sidebar__icon">→</span> Ver mi página
       </a>
       {% endif %}
       <a href="{{ url_for('payment.plans') }}" class="sidebar__link {% if request.endpoint == 'payment.plans' %}sidebar__link--active{% endif %}">
-        <span class="sidebar__icon">💳</span> Suscripción
+        <span class="sidebar__icon">·</span> Suscripción
       </a>
       <a href="{{ url_for('auth.logout') }}" class="sidebar__link sidebar__link--danger">
         <span class="sidebar__icon">←</span> Cerrar sesión

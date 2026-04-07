@@ -390,3 +390,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--txt);min-height:10
   .modal-step span{width:16px;height:16px;font-size:.58rem}
   .biz-tab{padding:.7rem .75rem;font-size:.78rem}
 }
+
+/* Staff booking grid */
+.staff-booking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:.5rem}
+.staff-booking-card input[type=radio]{display:none}
+.staff-booking-inner{
+  padding:1.4rem 1rem 1.1rem;border-radius:var(--card-radius);
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:all var(--transition);text-align:center;position:relative;
+}
+.staff-booking-inner:hover{border-color:var(--biz-accent);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.staff-booking-card input:checked+.staff-booking-inner{border-color:var(--biz-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--biz-accent) 20%,transparent)}
+.staff-booking-check{
+  position:absolute;top:.6rem;right:.6rem;width:20px;height:20px;border-radius:50%;
+  background:var(--biz-accent);color:#fff;display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(0);transition:all var(--transition);
+}
+.staff-booking-check svg{width:11px;height:11px}
+.staff-booking-card input:checked+.staff-booking-inner .staff-booking-check{opacity:1;transform:scale(1)}
+.staff-booking-avatar{
+  width:56px;height:56px;border-radius:50%;background:var(--biz-accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;
+  margin:0 auto .75rem;
+}
+.staff-booking-avatar--img{object-fit:cover}
+.staff-booking-any{background:var(--surface2);color:var(--text3);border:2px solid var(--border);font-size:1rem}
+.staff-booking-name{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.staff-booking-role{font-size:.75rem;color:var(--biz-accent);font-weight:500}
+.biz-meta-link{color:inherit;text-decoration:none;opacity:.65}
+.biz-meta-link:hover{opacity:1;text-decoration:underline}
