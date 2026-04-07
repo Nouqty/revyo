@@ -39,7 +39,7 @@ html { scroll-behavior: smooth; }
   --shadow:  0 4px 20px rgba(0,0,0,.4);
 }
 
-body {
+body, .booking-body {
   font-family: var(--biz-font);
   background: var(--bg);
   color: var(--text);
@@ -195,13 +195,13 @@ body {
 .booking-modal-overlay {
   position: fixed; inset: 0; z-index: 200;
   background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
-  display: flex; align-items: flex-end;
+  display: flex; align-items: flex-end; justify-content: center; justify-content: center;
 }
 .booking-modal {
-  background: var(--surface); width: 100%; max-width: 600px;
+  background: var(--surface); width: 100%; max-width: 580px;
   margin: 0 auto; border-radius: 20px 20px 0 0;
   max-height: 92vh; overflow-y: auto;
-  box-shadow: 0 -8px 40px rgba(0,0,0,.2);
+  box-shadow: 0 -8px 40px rgba(0,0,0,.3);
 }
 .booking-modal__header {
   display: flex; align-items: center; justify-content: space-between;
