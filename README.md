@@ -1,6 +1,12 @@
 # Revyo 🗓️
 Sistema SaaS de reservas para barberías, gimnasios, spas y más.
 
+## Stack
+- **Backend**: Flask + SQLAlchemy
+- **Base de datos**: PostgreSQL (SQLite para desarrollo)
+- **Pagos**: MercadoPago
+- **Frontend**: HTML/CSS/JS puro (sin frameworks)
+
 ## Estructura
 ```
 revyo/
@@ -27,7 +33,41 @@ revyo/
     │   ├── styles.css      # Landing + Auth + Dashboard
     │   └── booking.css     # Página pública (con CSS vars dinámicos)
     └── js/main.js
+```
 
+## Setup rápido
+
+### 1. Instalar dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Configurar variables de entorno
+```bash
+cp .env.example .env
+# Edita .env con tus credenciales
+```
+
+### 3. Obtener credenciales de MercadoPago
+1. Entra a https://www.mercadopago.cl/developers
+2. Crea una aplicación
+3. Copia tu `Access Token` y `Public Key` al `.env`
+4. Configura el webhook URL: `https://tudominio.com/webhook/mercadopago`
+
+### 4. Iniciar en desarrollo
+```bash
+python app.py
+```
+
+### 5. Deploy en producción (Railway / Render)
+```bash
+# Railway
+railway login
+railway new
+railway up
+
+# Variables de entorno en Railway:
+# DATABASE_URL, SECRET_KEY, MP_ACCESS_TOKEN, MP_PUBLIC_KEY, APP_URL
 ```
 
 ## Rutas principales
@@ -63,3 +103,11 @@ Cada negocio puede configurar:
 - Servicios con precio y duración
 - Tiempo mínimo de anticipación
 - Máximo de días por adelantado
+
+## Próximas features
+- [ ] Notificaciones por email (Flask-Mail)
+- [ ] Notificaciones por WhatsApp (Twilio)
+- [ ] Múltiples profesionales por negocio
+- [ ] Estadísticas y reportes
+- [ ] Dominio personalizado por negocio
+- [ ] App móvil (PWA)

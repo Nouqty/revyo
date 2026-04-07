@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ business.name }} — Reservar cita</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family={{ business.font_choice|replace(' ', '+') }}:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family={{ business.font_choice|replace(' ', '+') }}:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/booking.css') }}">
   <style>
     :root {
@@ -23,10 +23,8 @@
 </head>
 <body class="booking-body card-{{ business.card_style or 'elevated' }}">
 
+<!-- HEADER -->
 <header class="biz-header header-{{ business.header_style or 'gradient' }}">
-  {% if business.header_style == 'image' and business.banner_url %}
-  <div class="biz-header__banner" style="background-image:url('{{ business.banner_url }}')"></div>
-  {% endif %}
   <div class="biz-header__inner">
     <div class="biz-header__left">
       {% if business.logo_url %}
@@ -39,17 +37,15 @@
         {% if business.description %}<p class="biz-header__desc">{{ business.description }}</p>{% endif %}
         <div class="biz-header__meta">
           {% if business.address %}<span>📍 {{ business.address }}</span>{% endif %}
-          {% if business.phone %}<span>📞 {{ business.phone }}</span>{% endif %}
-          {% if business.instagram %}<a href="https://instagram.com/{{ business.instagram|replace("@","") }}" target="_blank" class="biz-header__ig">📸 {{ business.instagram }}</a>{% endif %}
+          {% if business.phone %}<a href="tel:{{ business.phone }}" class="biz-meta-link">📞 {{ business.phone }}</a>{% endif %}
+          {% if business.instagram %}<a href="https://instagram.com/{{ business.instagram|replace('@','') }}" target="_blank" class="biz-meta-link biz-header__ig">📸 {{ business.instagram }}</a>{% endif %}
         </div>
       </div>
     </div>
     <div class="biz-header__right">
       {% if business.allow_dark_mode %}
-      <button class="theme-toggle" id="theme-toggle" title="Cambiar modo oscuro/claro">
-        <span class="theme-toggle__track">
-          <span class="theme-toggle__thumb"></span>
-        </span>
+      <button class="theme-toggle" id="theme-toggle" title="Modo oscuro/claro">
+        <span class="theme-toggle__track"><span class="theme-toggle__thumb"></span></span>
         <span class="theme-toggle__sun">☀️</span>
         <span class="theme-toggle__moon">🌙</span>
       </button>
@@ -62,135 +58,215 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- TABS -->
+  <div class="biz-tabs">
+    <div class="biz-tabs__inner">
+      <button class="biz-tab active" onclick="showTab('servicios', this)">Servicios</button>
+      {% if staff %}<button class="biz-tab" onclick="showTab('equipo', this)">Equipo</button>{% endif %}
+      {% if business.address %}<button class="biz-tab" onclick="showTab('direccion', this)">Dirección</button>{% endif %}
+    </div>
+  </div>
 </header>
 
-<main class="booking-main">
-  <div class="booking-container">
+<!-- MAIN CONTENT -->
+<main class="biz-main">
 
-    <div class="booking-steps">
-      <div class="booking-step active" data-step="1">
-        <div class="booking-step__bubble"><span class="booking-step__num">1</span><svg class="booking-step__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <span>Servicio</span>
+  <!-- TAB: SERVICIOS -->
+  <div class="tab-panel active" id="tab-servicios">
+    {% if services %}
+    <div class="services-list">
+      {% for svc in services %}
+      <div class="svc-list-item" onclick="openBooking('{{ svc.id }}', '{{ svc.name }}')">
+        <div class="svc-list-emoji">{{ svc.emoji or '⚡' }}</div>
+        <div class="svc-list-info">
+          <div class="svc-list-name">{{ svc.name }}</div>
+          {% if svc.description %}<div class="svc-list-desc">{{ svc.description }}</div>{% endif %}
+          <div class="svc-list-meta">
+            <span class="svc-list-duration">⏱ {{ svc.duration_min }} min</span>
+            <span class="svc-list-price">{{ svc.price|price_display }}</span>
+          </div>
+        </div>
+        <div class="svc-list-arrow">›</div>
       </div>
-      <div class="booking-step__connector"><div class="booking-step__progress"></div></div>
-      <div class="booking-step" data-step="2">
-        <div class="booking-step__bubble"><span class="booking-step__num">2</span><svg class="booking-step__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <span>Profesional</span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-tab">
+      <p>No hay servicios disponibles por el momento.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- TAB: EQUIPO -->
+  {% if staff %}
+  <div class="tab-panel" id="tab-equipo">
+    <div class="team-list">
+      {% for person in staff %}
+      <div class="team-item">
+        {% if person.avatar_url %}
+        <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="team-avatar">
+        {% else %}
+        <div class="team-avatar team-avatar--placeholder">{{ person.name[0]|upper }}</div>
+        {% endif %}
+        <div class="team-info">
+          <div class="team-name">{{ person.name }}</div>
+          {% if person.role %}<div class="team-role">{{ person.role }}</div>{% endif %}
+          {% if person.bio %}<div class="team-bio">{{ person.bio }}</div>{% endif %}
+          <div class="team-links">
+            {% if person.instagram %}
+            <a href="https://instagram.com/{{ person.instagram }}" target="_blank" class="team-link team-ig">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              @{{ person.instagram }}
+            </a>
+            {% endif %}
+            {% if person.phone %}
+            <a href="tel:{{ person.phone }}" class="team-link">📞 {{ person.phone }}</a>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div class="booking-step__connector"><div class="booking-step__progress"></div></div>
-      <div class="booking-step" data-step="3">
-        <div class="booking-step__bubble"><span class="booking-step__num">3</span><svg class="booking-step__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <span>Fecha y hora</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- TAB: DIRECCIÓN -->
+  {% if business.address %}
+  <div class="tab-panel" id="tab-direccion">
+    <div class="direccion-card">
+      <div class="dir-icon">📍</div>
+      <div class="dir-info">
+        <div class="dir-label">Dirección</div>
+        <div class="dir-value">{{ business.address }}</div>
+        <a href="https://maps.google.com/?q={{ business.address|urlencode }}" target="_blank" class="dir-maps-btn">
+          Ver en Google Maps →
+        </a>
       </div>
-      <div class="booking-step__connector"><div class="booking-step__progress"></div></div>
-      <div class="booking-step" data-step="4">
-        <div class="booking-step__bubble"><span class="booking-step__num">4</span><svg class="booking-step__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <span>Confirmar</span>
+    </div>
+    {% if business.phone %}
+    <div class="direccion-card">
+      <div class="dir-icon">📞</div>
+      <div class="dir-info">
+        <div class="dir-label">Teléfono</div>
+        <a href="tel:{{ business.phone }}" class="dir-value dir-link">{{ business.phone }}</a>
       </div>
+    </div>
+    {% endif %}
+    {% if business.instagram %}
+    <div class="direccion-card">
+      <div class="dir-icon">📸</div>
+      <div class="dir-info">
+        <div class="dir-label">Instagram</div>
+        <a href="https://instagram.com/{{ business.instagram|replace('@','') }}" target="_blank" class="dir-value dir-link">{{ business.instagram }}</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</main>
+
+<!-- BOTÓN FLOTANTE -->
+<div class="float-bar">
+  <button class="float-reservar" onclick="openBooking(null, null)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Reservar cita
+  </button>
+</div>
+
+<!-- MODAL DE RESERVA -->
+<div class="booking-modal-overlay" id="booking-modal" style="display:none" onclick="if(event.target===this)closeBooking()">
+  <div class="booking-modal">
+    <div class="booking-modal__header">
+      <button class="booking-modal__close" onclick="closeBooking()">←</button>
+      <span class="booking-modal__title">Reservar cita</span>
+      <div></div>
+    </div>
+
+    <!-- Steps indicator -->
+    <div class="modal-steps">
+      <div class="modal-step active" id="mstep-1"><span>1</span> Servicio</div>
+      <div class="modal-step__line"></div>
+      <div class="modal-step" id="mstep-2"><span>2</span> Profesional</div>
+      <div class="modal-step__line"></div>
+      <div class="modal-step" id="mstep-3"><span>3</span> Fecha</div>
+      <div class="modal-step__line"></div>
+      <div class="modal-step" id="mstep-4"><span>4</span> Datos</div>
     </div>
 
     <form method="POST" action="{{ url_for('booking.book', slug=business.slug) }}" id="booking-form">
 
-      <!-- PASO 1 -->
-      <div class="booking-panel active" id="panel-1">
-        <div class="panel-header">
-          <h2>¿Qué servicio necesitas?</h2>
-          <p>Selecciona el servicio que deseas reservar</p>
-        </div>
+      <!-- PASO 1: Servicio -->
+      <div class="modal-panel active" id="mpanel-1">
+        <div class="modal-panel__title">¿Qué servicio necesitas?</div>
         {% if services %}
-        <div class="services-grid">
+        <div class="modal-services">
           {% for svc in services %}
-          <label class="service-card">
+          <label class="modal-svc-item">
             <input type="radio" name="service_id" value="{{ svc.id }}" {% if loop.first %}checked{% endif %}>
-            <div class="service-card__inner">
-              <div class="service-card__check">
-                <svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="modal-svc-inner">
+              <span class="modal-svc-emoji">{{ svc.emoji or '⚡' }}</span>
+              <div class="modal-svc-info">
+                <div class="modal-svc-name">{{ svc.name }}</div>
+                <div class="modal-svc-meta">{{ svc.duration_min }} min · {{ svc.price|price_display }}</div>
               </div>
-              <div class="service-card__icon">{{ svc.emoji or '⚡' }}</div>
-              <div class="service-card__name">{{ svc.name }}</div>
-              {% if svc.description %}<div class="service-card__desc">{{ svc.description }}</div>{% endif %}
-              <div class="service-card__meta">
-                <span class="service-card__duration">⏱ {{ svc.duration_min }} min</span>
-                <span class="service-card__price">{{ svc.price|price_display }}</span>
-              </div>
+              <div class="modal-svc-check">✓</div>
             </div>
           </label>
           {% endfor %}
         </div>
-        {% else %}
-        <div class="empty-msg">📋 Este negocio no tiene servicios disponibles aún.</div>
         {% endif %}
-        <div class="panel-nav">
+        <div class="modal-nav">
           <div></div>
-          <button type="button" onclick="goStep(2)" class="btn-next">Continuar →</button>
+          <button type="button" onclick="mGoStep(2)" class="btn-modal-next">Siguiente →</button>
         </div>
       </div>
 
-      <!-- PASO 2: Colaborador -->
-      <div class="booking-panel" id="panel-2">
-        <div class="panel-header">
-          <h2>¿Con quién quieres atenderte?</h2>
-          <p>Elige un profesional o cualquiera disponible</p>
-        </div>
-        {% if staff %}
-        <div class="staff-booking-grid">
-          <label class="staff-booking-card">
+      <!-- PASO 2: Profesional -->
+      <div class="modal-panel" id="mpanel-2">
+        <div class="modal-panel__title">¿Con quién quieres atenderte?</div>
+        <div class="modal-staff">
+          <label class="modal-staff-item">
             <input type="radio" name="staff_id" value="" checked>
-            <div class="staff-booking-inner">
-              <div class="staff-booking-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="staff-booking-cover">
-                <div class="staff-booking-avatar staff-booking-any">✦</div>
+            <div class="modal-staff-inner">
+              <div class="modal-staff-avatar modal-staff-any">✦</div>
+              <div class="modal-staff-info">
+                <div class="modal-staff-name">Cualquiera disponible</div>
+                <div class="modal-staff-role">Sin preferencia</div>
               </div>
-              <div class="staff-booking-content">
-                <div class="staff-booking-name">Cualquiera disponible</div>
-                <div class="staff-booking-role">Sin preferencia</div>
-              </div>
+              <div class="modal-svc-check">✓</div>
             </div>
           </label>
           {% for person in staff %}
-          <label class="staff-booking-card">
+          <label class="modal-staff-item">
             <input type="radio" name="staff_id" value="{{ person.id }}">
-            <div class="staff-booking-inner">
-              <div class="staff-booking-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="staff-booking-cover">
-                {% if person.avatar_url %}
-                <img src="{{ person.avatar_url }}" class="staff-booking-avatar staff-booking-avatar--img" alt="{{ person.name }}">
-                {% else %}
-                <div class="staff-booking-avatar">{{ person.name[0]|upper }}</div>
-                {% endif %}
+            <div class="modal-staff-inner">
+              {% if person.avatar_url %}
+              <img src="{{ person.avatar_url }}" class="modal-staff-avatar modal-staff-avatar--img" alt="{{ person.name }}">
+              {% else %}
+              <div class="modal-staff-avatar">{{ person.name[0]|upper }}</div>
+              {% endif %}
+              <div class="modal-staff-info">
+                <div class="modal-staff-name">{{ person.name }}</div>
+                {% if person.role %}<div class="modal-staff-role">{{ person.role }}</div>{% endif %}
               </div>
-              <div class="staff-booking-content">
-                <div class="staff-booking-name">{{ person.name }}</div>
-                {% if person.role %}<div class="staff-booking-role">{{ person.role }}</div>{% endif %}
-                {% if person.bio %}<div class="staff-booking-bio">{{ person.bio }}</div>{% endif %}
-                {% if person.instagram %}
-                <a href="https://instagram.com/{{ person.instagram }}" target="_blank" class="staff-booking-ig" onclick="event.stopPropagation()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                  @{{ person.instagram }}
-                </a>
-                {% endif %}
-              </div>
+              <div class="modal-svc-check">✓</div>
             </div>
           </label>
           {% endfor %}
         </div>
-        {% else %}
-        <input type="hidden" name="staff_id" value="">
-        {% endif %}
-        <div class="panel-nav">
-          <button type="button" onclick="goStep(1)" class="btn-back">← Volver</button>
-          <button type="button" onclick="goStep(3)" class="btn-next">Continuar →</button>
+        <div class="modal-nav">
+          <button type="button" onclick="mGoStep(1)" class="btn-modal-back">← Volver</button>
+          <button type="button" onclick="mGoStep(3)" class="btn-modal-next">Siguiente →</button>
         </div>
       </div>
 
-      <!-- PASO 3 (antes 2): Fecha y hora -->
-      <div class="booking-panel" id="panel-3-date">
-        <div class="panel-header">
-          <h2>¿Cuándo te viene bien?</h2>
-          <p>Elige la fecha y el horario disponible</p>
-        </div>
-        <div class="datetime-layout">
-          <div class="cal-card">
+      <!-- PASO 3: Fecha y hora -->
+      <div class="modal-panel" id="mpanel-3">
+        <div class="modal-panel__title">¿Cuándo te viene bien?</div>
+        <div class="modal-datetime">
+          <div class="modal-cal">
             <div class="cal-nav-bar">
               <button type="button" id="prev-month" class="cal-nav-btn">‹</button>
               <span id="cal-month-label" class="cal-month-title"></span>
@@ -202,70 +278,64 @@
             <div class="cal-grid" id="cal-grid"></div>
             <input type="hidden" name="date" id="selected-date">
           </div>
-          <div class="slots-card">
-            <div class="slots-header" id="slots-header">🕐 Elige una fecha para ver horarios</div>
+          <div class="modal-slots">
+            <div class="slots-header" id="slots-header">Selecciona una fecha</div>
             <div class="slots-grid" id="slots-grid">
-              <div class="slots-placeholder">← Selecciona un día</div>
+              <div class="slots-placeholder">← Elige un día</div>
             </div>
             <input type="hidden" name="time" id="selected-time">
           </div>
         </div>
-        <div class="panel-nav">
-          <button type="button" onclick="goStep(2)" class="btn-back">← Volver</button>
-          <button type="button" onclick="goStep(4)" class="btn-next" id="btn-step2-next" disabled>Continuar →</button>
+        <div class="modal-nav">
+          <button type="button" onclick="mGoStep(2)" class="btn-modal-back">← Volver</button>
+          <button type="button" onclick="mGoStep(4)" class="btn-modal-next" id="btn-step3-next" disabled>Siguiente →</button>
         </div>
       </div>
 
-      <!-- PASO 3 -->
-      <div class="booking-panel" id="panel-4">
-        <div class="panel-header">
-          <h2>Tus datos de contacto</h2>
-          <p>Para confirmar tu reserva necesitamos estos datos</p>
-        </div>
-        <div class="two-col-layout">
-          <div class="customer-form">
-            <div class="form-group">
-              <label>Nombre completo *</label>
-              <input type="text" name="customer_name" placeholder="Juan Pérez" required>
+      <!-- PASO 4: Datos -->
+      <div class="modal-panel" id="mpanel-4">
+        <div class="modal-panel__title">Tus datos de contacto</div>
+        <div class="modal-form">
+          <div class="mform-group">
+            <label>Nombre completo *</label>
+            <input type="text" name="customer_name" placeholder="Juan Pérez" required>
+          </div>
+          <div class="mform-row">
+            <div class="mform-group">
+              <label>Teléfono</label>
+              <input type="tel" name="customer_phone" placeholder="+56 9 1234 5678">
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Teléfono</label>
-                <input type="tel" name="customer_phone" placeholder="+56 9 1234 5678">
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="customer_email" placeholder="tu@email.com">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Notas adicionales</label>
-              <textarea name="notes" rows="3" placeholder="¿Alguna indicación especial? (opcional)"></textarea>
+            <div class="mform-group">
+              <label>Email</label>
+              <input type="email" name="customer_email" placeholder="tu@email.com">
             </div>
           </div>
-          <div class="booking-summary">
-            <div class="summary-title">📋 Resumen de tu reserva</div>
-            <div class="summary-body">
-              <div class="summary-row"><span>Negocio</span><strong>{{ business.name }}</strong></div>
-              <div class="summary-row"><span>Servicio</span><strong id="summary-service">—</strong></div>
-              <div class="summary-row"><span>Fecha</span><strong id="summary-date">—</strong></div>
-              <div class="summary-row"><span>Hora</span><strong id="summary-time">—</strong></div>
-            </div>
+          <div class="mform-group">
+            <label>Notas</label>
+            <textarea name="notes" rows="2" placeholder="Alguna indicación especial (opcional)"></textarea>
           </div>
         </div>
-        <div class="panel-nav">
-          <button type="button" onclick="goStep(3)" class="btn-back">← Volver</button>
-          <button type="submit" class="btn-confirm">✓ Confirmar reserva</button>
+        <!-- Resumen -->
+        <div class="modal-summary">
+          <div class="summary-row"><span>Servicio</span><strong id="sum-service">—</strong></div>
+          <div class="summary-row"><span>Profesional</span><strong id="sum-staff">—</strong></div>
+          <div class="summary-row"><span>Fecha</span><strong id="sum-date">—</strong></div>
+          <div class="summary-row"><span>Hora</span><strong id="sum-time">—</strong></div>
+        </div>
+        <div class="modal-nav">
+          <button type="button" onclick="mGoStep(3)" class="btn-modal-back">← Volver</button>
+          <button type="submit" class="btn-modal-confirm">✓ Confirmar reserva</button>
         </div>
       </div>
 
     </form>
   </div>
-</main>
-
-<div style="position:fixed;bottom:14px;right:16px;z-index:9000;pointer-events:none;">
-  <span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em;">Made by <strong style=color:var(--text2)>Nouqty</strong></span>
 </div>
+
+<div style="position:fixed;bottom:80px;right:14px;z-index:9000;pointer-events:none;">
+  <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em;">Made by <strong style="color:var(--text2)">Nouqty</strong></span>
+</div>
+
 <footer class="booking-footer">
   <a href="/" class="booking-footer__brand">Powered by <strong>Revyo</strong></a>
 </footer>
@@ -289,22 +359,46 @@ if (themeBtn) {
   });
 }
 
-// ── Steps ──────────────────────────────────────
-const PANELS = ['panel-1','panel-2','panel-3-date','panel-4'];
-function goStep(n) {
-  PANELS.forEach((id, i) => {
+// ── Tabs ───────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.biz-tab').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── Booking modal ──────────────────────────────
+let preSelectedService = null;
+
+function openBooking(serviceId, serviceName) {
+  document.getElementById('booking-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  if (serviceId) {
+    const radio = document.querySelector(`input[name="service_id"][value="${serviceId}"]`);
+    if (radio) radio.checked = true;
+    preSelectedService = { id: serviceId, name: serviceName };
+  }
+  mGoStep(1);
+}
+
+function closeBooking() {
+  document.getElementById('booking-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ── Modal steps ────────────────────────────────
+const MPANELS = ['mpanel-1','mpanel-2','mpanel-3','mpanel-4'];
+function mGoStep(n) {
+  MPANELS.forEach((id, i) => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('active', i+1===n);
   });
-  document.querySelectorAll('.booking-step').forEach((s, i) => {
+  document.querySelectorAll('.modal-step').forEach((s, i) => {
     s.classList.toggle('active', i+1===n);
     s.classList.toggle('done', i+1<n);
   });
-  document.querySelectorAll('.booking-step__connector .booking-step__progress').forEach((bar, i) => {
-    bar.style.width = i+1 < n ? '100%' : '0%';
-  });
   updateSummary();
-  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // ── Calendar ───────────────────────────────────
@@ -346,12 +440,12 @@ function renderCalendar(y, m) {
 function selectDate(ds, cell) {
   document.getElementById('selected-date').value = ds;
   document.getElementById('selected-time').value = '';
-  document.getElementById('btn-step2-next').disabled = true;
+  document.getElementById('btn-step3-next').disabled = true;
   document.querySelectorAll('.cal-cell--selected').forEach(c => c.classList.remove('cal-cell--selected'));
   cell.classList.add('cal-cell--selected');
   const [y,m,d] = ds.split('-');
   const dt = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
-  document.getElementById('slots-header').textContent = `🕐 ${DAYS_ES[dt.getDay()]} ${parseInt(d)} de ${MONTHS_ES[parseInt(m)-1]}`;
+  document.getElementById('slots-header').textContent = `${DAYS_ES[dt.getDay()]} ${parseInt(d)} de ${MONTHS_ES[parseInt(m)-1]}`;
   loadSlots(ds);
 }
 
@@ -371,7 +465,7 @@ async function loadSlots(ds) {
         document.querySelectorAll('.time-slot--selected').forEach(b => b.classList.remove('time-slot--selected'));
         btn.classList.add('time-slot--selected');
         document.getElementById('selected-time').value = s.time;
-        document.getElementById('btn-step2-next').disabled = false;
+        document.getElementById('btn-step3-next').disabled = false;
         updateSummary();
       });
     }
@@ -382,14 +476,31 @@ async function loadSlots(ds) {
 document.getElementById('prev-month').addEventListener('click', () => { curMonth--; if(curMonth<0){curMonth=11;curYear--;} renderCalendar(curYear,curMonth); });
 document.getElementById('next-month').addEventListener('click', () => { curMonth++; if(curMonth>11){curMonth=0;curYear++;} renderCalendar(curYear,curMonth); });
 
+// ── Summary ────────────────────────────────────
 function updateSummary() {
-  const radio = document.querySelector('input[name="service_id"]:checked');
-  document.getElementById('summary-service').textContent = radio ? radio.closest('.service-card').querySelector('.service-card__name').textContent : '—';
+  const svcRadio = document.querySelector('input[name="service_id"]:checked');
+  const staffRadio = document.querySelector('input[name="staff_id"]:checked');
   const date = document.getElementById('selected-date').value;
-  if (date) { const [y,m,d]=date.split('-'); document.getElementById('summary-date').textContent=`${parseInt(d)} de ${MONTHS_ES[parseInt(m)-1]} ${y}`; }
-  document.getElementById('summary-time').textContent = document.getElementById('selected-time').value || '—';
+  const time = document.getElementById('selected-time').value;
+
+  document.getElementById('sum-service').textContent = svcRadio
+    ? svcRadio.closest('.modal-svc-item').querySelector('.modal-svc-name').textContent : '—';
+
+  if (staffRadio) {
+    const val = staffRadio.value;
+    document.getElementById('sum-staff').textContent = val === ''
+      ? 'Cualquiera disponible'
+      : staffRadio.closest('.modal-staff-item').querySelector('.modal-staff-name').textContent;
+  }
+
+  if (date) {
+    const [y,m,d] = date.split('-');
+    document.getElementById('sum-date').textContent = `${parseInt(d)} de ${MONTHS_ES[parseInt(m)-1]}`;
+  }
+  document.getElementById('sum-time').textContent = time || '—';
 }
 
+// ── Init ───────────────────────────────────────
 renderCalendar(curYear, curMonth);
 </script>
 </body>
