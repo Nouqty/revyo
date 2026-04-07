@@ -1,61 +1,71 @@
 {% extends 'base.html' %}
 {% block title %}Crear cuenta — Revyo{% endblock %}
 {% block body_class %}auth-body{% endblock %}
-
 {% block content %}
-<div class="auth-wrapper auth-wrapper--register">
-  <div class="auth-card">
-    <a href="/" class="auth-logo">Revyo</a>
-    <div class="auth-card__header">
-      <h1>Empieza gratis</h1>
-      <p>7 días de prueba · Sin tarjeta de crédito</p>
-    </div>
-    <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
+<div class="auth-wrap auth-wrap--register">
+  <div class="auth-panel">
+    <a href="/" class="auth-logo">Rev<em>yo</em></a>
+    <h1>Crea tu cuenta gratis</h1>
+    <p class="auth-sub">7 días de prueba sin tarjeta de crédito. Cancela cuando quieras.</p>
+    <form class="auth-form" method="POST" action="{{ url_for('auth.register') }}">
       <div class="form-row">
         <div class="form-group">
           <label>Tu nombre</label>
-          <input type="text" name="name" placeholder="Juan Pérez" value="{{ name or request.form.get('name', '') }}" required>
+          <input type="text" name="name" placeholder="Juan Pérez" required>
         </div>
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" placeholder="tu@email.com" value="{{ email or request.form.get('email', '') }}" required>
+          <label>Nombre del negocio</label>
+          <input type="text" name="business_name" placeholder="Barbería El Estilo" required>
         </div>
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" name="email" placeholder="tu@email.com" required>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Contraseña</label>
-          <input type="password" name="password" placeholder="Mínimo 6 caracteres" required>
+          <input type="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8">
         </div>
         <div class="form-group">
           <label>Confirmar contraseña</label>
-          <input type="password" name="password2" placeholder="Repite tu contraseña" required>
+          <input type="password" name="confirm_password" placeholder="Repite la contraseña" required>
         </div>
       </div>
-      <div class="form-divider"><span>Tu negocio</span></div>
-      <div class="form-row">
-        <div class="form-group form-group--wide">
-          <label>Nombre del negocio</label>
-          <input type="text" name="business_name" placeholder="ej. Barbería El Estilo" value="{{ business_name or request.form.get('business_name', '') }}" required>
-        </div>
-        <div class="form-group">
-          <label>Categoría</label>
-          <select name="category">
-            <option value="barberia">Barbería</option>
-            <option value="gym">Gimnasio</option>
-            <option value="spa">Spa / Masajes</option>
-            <option value="salon">Salón de belleza</option>
-            <option value="dental">Dental / Salud</option>
-            <option value="otro" selected>Otro</option>
-          </select>
-        </div>
-      </div>
-      <button type="submit" class="btn btn--accent btn--full btn--lg">Crear mi página gratis →</button>
-      <p class="form-terms">Al registrarte aceptas nuestros <a href="#">Términos de uso</a> y <a href="#">Privacidad</a></p>
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:.5rem">Crear cuenta gratis →</button>
+      <p class="form-terms">Al registrarte aceptas nuestros <a href="#">Términos de servicio</a> y <a href="#">Política de privacidad</a></p>
     </form>
-    <div class="auth-card__footer">
-      ¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Iniciar sesión →</a>
+    <div class="auth-footer">
+      ¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
     </div>
-    <p style="text-align:center;margin-top:1.5rem;font-size:.7rem;font-weight:700;color:var(--text3);letter-spacing:.05em">Made by <span style="color:var(--text2)">Nouqty</span></p>
+  </div>
+  <div class="auth-side">
+    <div class="auth-side__content">
+      <h2>Todo listo en 5 minutos</h2>
+      <div class="auth-feats">
+        <div class="auth-feat">
+          <div class="auth-feat__icon">⚡</div>
+          <div>
+            <strong>Setup instantáneo</strong>
+            <p>Agrega servicios, horarios y colaboradores en minutos.</p>
+          </div>
+        </div>
+        <div class="auth-feat">
+          <div class="auth-feat__icon">📲</div>
+          <div>
+            <strong>Link listo para compartir</strong>
+            <p>Tu página pública lista desde el primer día. Compártela por WhatsApp o Instagram.</p>
+          </div>
+        </div>
+        <div class="auth-feat">
+          <div class="auth-feat__icon">💳</div>
+          <div>
+            <strong>Sin tarjeta requerida</strong>
+            <p>7 días gratis, sin compromisos. Solo pagas si quieres continuar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

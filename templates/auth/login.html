@@ -1,55 +1,51 @@
 {% extends 'base.html' %}
 {% block title %}Iniciar sesión — Revyo{% endblock %}
 {% block body_class %}auth-body{% endblock %}
-
 {% block content %}
-<div class="auth-wrapper">
-  <div class="auth-card">
-    <a href="/" class="auth-logo">Revyo</a>
-    <div class="auth-card__header">
-      <h1>Bienvenido de nuevo</h1>
-      <p>Ingresa a tu panel de control</p>
-    </div>
-    <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+<div class="auth-wrap">
+  <div class="auth-panel">
+    <a href="/" class="auth-logo">Rev<em>yo</em></a>
+    <h1>Bienvenido de vuelta</h1>
+    <p class="auth-sub">Inicia sesión para acceder a tu panel de administración.</p>
+    <form class="auth-form" method="POST" action="{{ url_for('auth.login') }}">
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" placeholder="tu@email.com" value="{{ request.form.get('email', '') }}" required autocomplete="email">
+        <label>Correo electrónico</label>
+        <input type="email" name="email" placeholder="tu@email.com" required autofocus>
       </div>
       <div class="form-group">
         <label>Contraseña</label>
-        <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+        <input type="password" name="password" placeholder="••••••••" required>
       </div>
-      <label class="checkbox-label" style="margin-top:.25rem">
-        <input type="checkbox" name="remember">
-        <span style="font-size:.875rem;color:var(--text2)">Mantener sesión iniciada</span>
-      </label>
-      <button type="submit" class="btn btn--accent btn--full btn--lg" style="margin-top:.5rem">Iniciar sesión</button>
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:.5rem">Iniciar sesión</button>
     </form>
-    <div class="auth-card__footer">
-      ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate gratis →</a>
+    <div class="auth-footer">
+      ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate gratis</a>
     </div>
-    <p style="text-align:center;margin-top:2rem;font-size:.7rem;font-weight:700;color:var(--text3);letter-spacing:.05em">Made by <span style="color:var(--text2)">Nouqty</span></p>
   </div>
-
   <div class="auth-side">
     <div class="auth-side__content">
-      <h2>Todo tu negocio<br>en un link</h2>
-      <div class="auth-features">
-        <div class="auth-feature">
-          <div class="auth-feature__icon">🎨</div>
-          <p>Página 100% personalizable con tus colores y logo</p>
+      <h2>Gestiona tu negocio desde cualquier lugar</h2>
+      <div class="auth-feats">
+        <div class="auth-feat">
+          <div class="auth-feat__icon">📅</div>
+          <div>
+            <strong>Reservas en tiempo real</strong>
+            <p>Ve todas tus citas actualizadas al instante, sin refrescar la página.</p>
+          </div>
         </div>
-        <div class="auth-feature">
-          <div class="auth-feature__icon">📅</div>
-          <p>Reservas online las 24 horas, sin intervención tuya</p>
+        <div class="auth-feat">
+          <div class="auth-feat__icon">✉️</div>
+          <div>
+            <strong>Emails automáticos</strong>
+            <p>Tus clientes reciben confirmación y recordatorio sin que hagas nada.</p>
+          </div>
         </div>
-        <div class="auth-feature">
-          <div class="auth-feature__icon">✉️</div>
-          <p>Emails automáticos de confirmación y recordatorio</p>
-        </div>
-        <div class="auth-feature">
-          <div class="auth-feature__icon">⚡</div>
-          <p>Lista en menos de 5 minutos</p>
+        <div class="auth-feat">
+          <div class="auth-feat__icon">🎨</div>
+          <div>
+            <strong>Tu marca, tu estilo</strong>
+            <p>Personaliza colores, fuente, logo y modo oscuro a tu gusto.</p>
+          </div>
         </div>
       </div>
     </div>

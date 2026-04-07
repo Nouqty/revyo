@@ -1,83 +1,67 @@
 {% extends 'dashboard/base.html' %}
-{% block title %}Panel — {{ business.name }}{% endblock %}
+{% block title %}Panel — Revyo{% endblock %}
 {% block breadcrumb %}Panel principal{% endblock %}
+{% block content %}
 
-{% block dash_content %}
-
-<!-- Suscripción trial banner -->
-{% if current_user.subscription and current_user.subscription.status == 'trial' %}
+{% if subscription and subscription.status == 'trial' %}
 <div class="trial-banner">
-  <span>⚡ Período de prueba activo</span>
-  <span>Suscríbete para no perder el acceso</span>
-  <a href="{{ url_for('payment.plans') }}" class="btn btn--accent btn--sm">Ver planes</a>
+  <span class="trial-banner__label">⚡ Período de prueba activo</span>
+  <span class="trial-banner__text">Suscríbete para no perder el acceso a tu panel.</span>
+  <a href="{{ url_for('payment.plans') }}" class="btn-d btn-d--accent btn-d--sm">Ver planes</a>
 </div>
 {% endif %}
 
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-card__icon">📅</div>
-    <div class="stat-card__num">{{ today_appointments|length }}</div>
+    <div class="stat-card__num">{{ today_count }}</div>
     <div class="stat-card__label">Citas hoy</div>
   </div>
   <div class="stat-card">
-    <div class="stat-card__icon">⏳</div>
     <div class="stat-card__num">{{ pending_count }}</div>
     <div class="stat-card__label">Pendientes</div>
   </div>
   <div class="stat-card">
-    <div class="stat-card__icon">📊</div>
-    <div class="stat-card__num">{{ this_week }}</div>
+    <div class="stat-card__num">{{ week_count }}</div>
     <div class="stat-card__label">Últimos 7 días</div>
   </div>
+  {% if business %}
   <div class="stat-card">
-    <div class="stat-card__icon">🔗</div>
-    <div class="stat-card__label">Tu link de reservas</div>
+    <div class="stat-card__num" style="font-size:1rem;margin-top:.4rem">Tu link</div>
     <div class="stat-card__link">
-      <code>revyo.cl/b/{{ business.slug }}</code>
-      <button onclick="navigator.clipboard.writeText('{{ request.host_url }}b/{{ business.slug }}');this.textContent='✓'" class="btn btn--ghost btn--xs">Copiar</button>
+      <code>/b/{{ business.slug }}</code>
+      <button class="stat-card__copy" onclick="copyLink('{{ request.host_url }}b/{{ business.slug }}')">Copiar</button>
     </div>
   </div>
+  {% endif %}
 </div>
 
-<!-- Próximas citas -->
-<div class="dash-section">
-  <div class="dash-section__header">
-    <h2>Próximas reservas</h2>
-    <a href="{{ url_for('dashboard.appointments') }}" class="btn btn--ghost btn--sm">Ver todas →</a>
+<!-- Upcoming appointments -->
+<div class="dash-card" style="margin-bottom:1.5rem">
+  <div class="dash-card__header">
+    <h2 class="dash-card__title">Próximas reservas</h2>
+    <a href="{{ url_for('dashboard.appointments') }}" class="dash-card__link">Ver todas →</a>
   </div>
-
-  {% if upcoming %}
-  <div class="appointments-list">
-    {% for appt in upcoming %}
+  {% if upcoming_appointments %}
+  <div class="appts">
+    {% for appt in upcoming_appointments %}
     <div class="appt-row appt-row--{{ appt.status }}">
-      <div class="appt-row__date">
-        <div class="appt-row__day">{{ appt.date|format_date }}</div>
-        <div class="appt-row__time">{{ appt.time|format_time }}</div>
+      <div>
+        <div class="appt-row__time">{{ appt.time.strftime('%H:%M') if appt.time else '—' }}</div>
+        <div class="appt-row__day">{{ appt.date.strftime('%d %b') if appt.date else '—' }}</div>
       </div>
-      <div class="appt-row__info">
+      <div>
         <div class="appt-row__name">{{ appt.customer_name }}</div>
-        <div class="appt-row__service">
-          {% if appt.service %}{{ appt.service.name }}{% else %}Cita general{% endif %}
-          {% if appt.customer_phone %} · {{ appt.customer_phone }}{% endif %}
-        </div>
+        <div class="appt-row__svc">{{ appt.service.name if appt.service else 'Sin servicio' }}{% if appt.customer_phone %} · {{ appt.customer_phone }}{% endif %}</div>
+        {% if appt.notes %}<div class="appt-row__notes">{{ appt.notes }}</div>{% endif %}
       </div>
-      <div class="appt-row__status">
-        <span class="status-badge status-badge--{{ appt.status }}">
-          {{ appt.status_label[0] }}
-        </span>
-      </div>
+      <span class="badge badge--{{ appt.status }}">
+        {% if appt.status=='pending' %}Pendiente{% elif appt.status=='confirmed' %}Confirmada{% elif appt.status=='cancelled' %}Cancelada{% else %}Completada{% endif %}
+      </span>
       <div class="appt-row__actions">
         {% if appt.status == 'pending' %}
-        <button onclick="updateStatus({{ appt.id }}, 'confirmed', this)"
-                class="btn btn--success btn--xs">Confirmar</button>
-        <button onclick="updateStatus({{ appt.id }}, 'cancelled', this)"
-                class="btn btn--danger btn--xs">Cancelar</button>
-        {% elif appt.status == 'confirmed' %}
-        <button onclick="updateStatus({{ appt.id }}, 'completed', this)"
-                class="btn btn--outline btn--xs">Completar</button>
-        <button onclick="updateStatus({{ appt.id }}, 'cancelled', this)"
-                class="btn btn--danger btn--xs">Cancelar</button>
+        <button class="btn-d btn-d--success btn-d--sm" onclick="toggleStatus({{ appt.id }},'confirmed')">✓</button>
+        <button class="btn-d btn-d--danger btn-d--sm" onclick="toggleStatus({{ appt.id }},'cancelled')">✕</button>
         {% endif %}
       </div>
     </div>
@@ -85,54 +69,40 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-state__icon">📭</div>
+    <div class="empty-state__icon">📅</div>
     <p>No hay reservas próximas</p>
-    <p class="empty-state__sub">Comparte tu link para que los clientes puedan reservar</p>
-    <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank"
-       class="btn btn--outline btn--sm">Ver mi página →</a>
+    <small>Comparte tu link para empezar a recibir citas</small>
+    {% if business %}
+    <button class="btn-d btn-d--outline" onclick="copyLink('{{ request.host_url }}b/{{ business.slug }}')">Copiar mi link</button>
+    {% endif %}
   </div>
   {% endif %}
 </div>
 
 <!-- Quick actions -->
-<div class="quick-actions">
-  <a href="{{ url_for('dashboard.customize') }}" class="quick-action">
-    <div class="quick-action__icon">🎨</div>
-    <div><strong>Personalizar</strong><small>Colores, logo y diseño</small></div>
-  </a>
-  <a href="{{ url_for('dashboard.services') }}" class="quick-action">
-    <div class="quick-action__icon">⚡</div>
-    <div><strong>Servicios</strong><small>Agrega o edita servicios</small></div>
-  </a>
-  <a href="{{ url_for('dashboard.hours') }}" class="quick-action">
-    <div class="quick-action__icon">🕐</div>
-    <div><strong>Horarios</strong><small>Configura cuándo atiendes</small></div>
-  </a>
-  <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank" class="quick-action">
-    <div class="quick-action__icon">🔗</div>
-    <div><strong>Ver mi página</strong><small>Como la ve el cliente</small></div>
-  </a>
+<div class="dash-card">
+  <div class="dash-card__header">
+    <h2 class="dash-card__title">Accesos rápidos</h2>
+  </div>
+  <div class="quick-actions">
+    <a href="{{ url_for('dashboard.customize') }}" class="quick-action">
+      <div class="quick-action__icon">🎨</div>
+      <div><strong>Personalizar página</strong><small>Colores, logo y diseño</small></div>
+    </a>
+    <a href="{{ url_for('dashboard.services') }}" class="quick-action">
+      <div class="quick-action__icon">⚡</div>
+      <div><strong>Gestionar servicios</strong><small>Agrega o edita servicios</small></div>
+    </a>
+    <a href="{{ url_for('dashboard.hours') }}" class="quick-action">
+      <div class="quick-action__icon">🕐</div>
+      <div><strong>Horarios de atención</strong><small>Configura cuándo atiendes</small></div>
+    </a>
+    {% if business %}
+    <a href="{{ url_for('booking.page', slug=business.slug) }}" target="_blank" class="quick-action">
+      <div class="quick-action__icon">↗</div>
+      <div><strong>Ver mi página</strong><small>Como la ve el cliente</small></div>
+    </a>
+    {% endif %}
+  </div>
 </div>
-
-<script>
-async function updateStatus(id, status, btn) {
-  const row = btn.closest('.appt-row');
-  const res = await fetch(`/dashboard/appointments/${id}/status`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({status})
-  });
-  if (res.ok) {
-    row.className = `appt-row appt-row--${status}`;
-    row.querySelector('.appt-row__actions').innerHTML =
-      status === 'confirmed'
-        ? `<button onclick="updateStatus(${id},'completed',this)" class="btn btn--outline btn--xs">Completar</button>
-           <button onclick="updateStatus(${id},'cancelled',this)" class="btn btn--danger btn--xs">Cancelar</button>`
-        : '';
-    row.querySelector('.status-badge').textContent =
-      {confirmed:'Confirmada',completed:'Completada',cancelled:'Cancelada'}[status];
-    row.querySelector('.status-badge').className = `status-badge status-badge--${status}`;
-  }
-}
-</script>
 {% endblock %}
